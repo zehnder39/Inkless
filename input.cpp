@@ -26,6 +26,15 @@ void input()
             case Keyboard::Key::S:
                 moving_down = true;
                 break;
+            case Keyboard::Key::Escape:
+                should_close = true;
+                break;
+            case Keyboard::Key::E:
+                break_key = true;
+                break;
+            case Keyboard::Key::T:
+                player_model.setRotation(degrees(0));
+                break;
             }
         }
         if (const auto* key = event->getIf<Event::KeyReleased>())
@@ -44,6 +53,8 @@ void input()
             case Keyboard::Key::S:
                 moving_down = false;
                 break;
+            case Keyboard::Key::E:
+                break_key = false;
             }
         }
     }

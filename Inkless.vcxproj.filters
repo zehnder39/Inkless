@@ -46,5 +46,14 @@
     <Image Include="ground2.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="rock.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="squid_jump.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="squid_player.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
