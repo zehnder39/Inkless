@@ -5,10 +5,6 @@
 #include <iostream>
 
 
-bool moving_left = false, moving_right = false, moving_up = false, moving_down = false;
-bool facing_left, facing_up;
-bool break_key = false;
-bool should_close = false;
 vector<CircleShape> entities;
 
 Player player(960, 540);
@@ -35,10 +31,6 @@ void Player::move(float dx, float dy)
 		facing_left = false;
 	else if (dx < 0)
 		facing_left = true;
-	if (dy > 0)
-		facing_up = false;
-	else if (dy < 0)
-		facing_up = true;
 	float norm = 1;
 	if (dx != 0 and dy != 0)
 		norm = sqrtf(dx / dx + dy / dy);
@@ -90,18 +82,9 @@ Tile::Tile(Vector2f poss,Vector2i sub, Vector2i chun, bool sol, bool breaka, int
 void Tile::draw()
 {
 	Sprite sprite(texture);
-	sprite.setPosition({ position.x, position.y });
+	sprite.setPosition({ position.x + break_offset, position.y });
 	sprite.scale({ 4.f, 4.f });
 	window->draw(sprite);
-}
-
-void Tile::destroy()
-{
-	if (world_chunks[chunk.x][chunk.y].changeables[sub_c.x][sub_c.y] != nullptr)
-	{
-		delete world_chunks[chunk.x][chunk.y].changeables[sub_c.x][sub_c.y];
-		world_chunks[chunk.x][chunk.y].changeables[sub_c.x][sub_c.y] = nullptr;
-	}
 }
 
 Chunk::Chunk(Vector2i poss)
@@ -133,7 +116,7 @@ void Chunk::rockdom(Texture tex)
 		{
 			int num = rand() % 8;
 			if (num == 0)
-				changeables[x][y] = new Tile(Vector2f( (x * 64) + (position.x * 1024), (y * 64) + (position.y * 1024) ), Vector2i(x,y), Vector2i(position.x, position.y), true, true, 90, tex);
+				changeables[x][y] = new Tile(Vector2f( (x * 64) + (position.x * 1024), (y * 64) + (position.y * 1024) ), Vector2i(x,y), Vector2i(position.x, position.y), true, true, 45, tex);
 		}
 	}
 }

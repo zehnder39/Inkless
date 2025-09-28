@@ -7,6 +7,11 @@
 #include "header.hpp"
 
 
+void delete_tile(Tile* tile)
+{
+	world_chunks[tile->chunk.x][tile->chunk.y].changeables[tile->sub_c.x][tile->sub_c.y] = nullptr;
+	delete tile;
+}
 
 void create_world()
 {

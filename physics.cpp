@@ -45,14 +45,22 @@ bool check_breaking()
 	if (break_key)
 	{
 		int dx = 64;
-		if (facing_left)
+		if (looking_left)
 			dx = -64;
+		else if (looking_right)
+			dx = 64;
+		else
+			dx = 0;
 		int dy = 64;
-		if (facing_up)
+		if (looking_up)
 			dy = -64;
+		else if (looking_down)
+			dy = 64;
+		else
+			dy = 0;
 		Vector2i chunk_poss = { static_cast<int>(floor((player.position.x + dx) / 1024)), static_cast<int>(floor((player.position.y + dy )/ 1024)) };
 		Vector2i sub_c = { static_cast<int>((static_cast<int>(player.position.x + dx) % 1024) / 64), static_cast<int>((static_cast<int>(player.position.y + dy) % 1024) / 64) };
-		if (0 <= chunk_poss.x < world_chunks.size() and 0 <= chunk_poss.y < world_chunks[chunk_poss.x].size())
+		if (0 <= chunk_poss.x and chunk_poss.x < world_chunks.size() and 0 <= chunk_poss.y and chunk_poss.y < world_chunks[chunk_poss.x].size())
 		{
 			Chunk chunk = world_chunks[chunk_poss.x][chunk_poss.y];
 			Tile* tile = chunk.changeables[sub_c.x][sub_c.y];
@@ -66,18 +74,16 @@ bool check_breaking()
 				{
 					break_time = 0;
 					breaking_mem = tile;
-					cout << "changed tile" << endl;
 				}
 				else if (break_time >= tile->durability)
 				{
-					tile->destroy();
-					cout << "destroyed tile" << endl;
+					delete_tile(tile);
+					break_time = 0;
 				}
 				else
+					tile->break_offset = (break_time % 5 - 2) * 5 * break_time / tile->durability;
 					return true;
 			}
-			else
-				cout << "tile not there" << endl;
 		}
 	}
 	return false;

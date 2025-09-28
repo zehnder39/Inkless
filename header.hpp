@@ -11,8 +11,10 @@ using namespace sf;
 
 // flags:
 extern bool moving_left, moving_right, moving_up, moving_down, break_key;
-extern bool facing_left, facing_up;
+extern bool facing_left;
+extern bool looking_up, looking_down, looking_right, looking_left;
 extern bool should_close;
+extern bool left_click, right_click;
 
 extern RenderWindow* window;
 extern CircleShape entity1;
@@ -25,6 +27,7 @@ extern Texture player_texture;
 extern Texture jump_texture;
 extern vector<CircleShape> debug_draw;
 extern vector<string> debug_text;
+extern Vector2i mouse_pos;
 
 
 void create_world();
@@ -58,14 +61,15 @@ public:
 	bool breakable;
 	int durability;
 	Vector2f position;
+	float break_offset = 0;
 	Vector2i sub_c;
 	Vector2i chunk;
 	Texture texture;
 	Tile(Vector2f poss, Vector2i sub, Vector2i chun, bool sol, bool breaka, int dura, Texture tex);
-	void destroy();
 	void draw();
 };
 
+void delete_tile(Tile* tile);
 extern Tile* breaking_mem;
 
 class Chunk
