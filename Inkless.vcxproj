@@ -153,6 +153,8 @@
   <ItemGroup>
     <Image Include="ground.png" />
     <Image Include="ground2.png" />
+    <Image Include="ground3.png" />
+    <Image Include="gutter.png" />
     <Image Include="rock.png" />
     <Image Include="squid_player.png" />
     <Image Include="squid_jump.png" />

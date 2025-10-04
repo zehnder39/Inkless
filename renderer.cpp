@@ -8,23 +8,26 @@ vector<string> debug_text;
 
 Font font("ARIAL.ttf");
 
-bool debug_visual = false;
+bool debug_visual = true;
 
-Vector2f view_offset;
+Vector2f view_offset = {0.f, 0.f};
+Vector2f player_local_poss;
 
 void set_view_offset()
 {
-	view_offset = Vector2f(window->getSize().x / 2, window->getSize().y / 2);
-    if (player.position.x > window->getSize().x / 2 and player.position.x < world_chunks.size() * 1024 - window->getSize().x / 2)
+    Vector2i window_size = Vector2i(window->getSize().x, window->getSize().y);
+    view_offset = Vector2f(window_size.x / 2, window_size.y / 2);
+    if (player.position.x > window_size.x / 2 and player.position.x < world_chunks.size() * (tile_size.x * 16) - window_size.x / 2)
         view_offset.x = player.position.x;
-    else if (player.position.x > world_chunks.size() * 1024 - window->getSize().x / 2)
-		view_offset.x = world_chunks.size() * 1024 - window->getSize().x / 2;
-    if (player.position.y > window->getSize().y / 2 and player.position.y < world_chunks[0].size() * 1024 - window->getSize().y / 2)
+    else if (player.position.x > world_chunks.size() * (tile_size.x * 16) - window_size.x / 2)
+        view_offset.x = world_chunks.size() * (tile_size.x * 16) - window_size.x / 2;
+    if (player.position.y > window_size.y / 2 and player.position.y < world_chunks[0].size() * (tile_size.y * 16) - window_size.y / 2)
         view_offset.y = player.position.y;
-    else if (player.position.y > world_chunks[0].size() * 1024 - window->getSize().y / 2)
-        view_offset.y = world_chunks[0].size() * 1024 - window->getSize().y / 2;
-    window->setView(View({ view_offset.x, view_offset.y}, Vector2f(window->getSize().x, window->getSize().y)));
+    else if (player.position.y > world_chunks[0].size() * (tile_size.y * 16) - window_size.y / 2)
+        view_offset.y = world_chunks[0].size() * (tile_size.y * 16) - window_size.y / 2;
+    window->setView(View({ view_offset.x, view_offset.y}, Vector2f(window_size.x, window_size.y)));
 	debug_text.push_back("Player offest: " + to_string(view_offset.x) + ", " + to_string(view_offset.y));
+    player_local_poss = { player.position.x - view_offset.x + window_size.x / 2, player.position.y - view_offset.y + window_size.y / 2 };
 }
 
 
@@ -37,8 +40,12 @@ void render_player()
 {
     player_model.setPosition({ player.position.x, player.position.y + player.jump_offset });
     window->draw(player_model);
-    auto tile_below = world_chunks[player.chunk.x][player.chunk.y].changeables[player.sub_c.x][player.sub_c.y + 1];
-    if (tile_below != NULL)
+    Tile* tile_below;
+    if (player.sub_c.y < 15)
+        tile_below = world_chunks[player.chunk.x][player.chunk.y].changeables[player.sub_c.x][player.sub_c.y + 1];
+    else
+        tile_below = world_chunks[player.chunk.x][player.chunk.y + 1].changeables[player.sub_c.x][0];
+    if (tile_below != nullptr)
         tile_below->draw();
 }
 
@@ -78,12 +85,12 @@ void render_debug()
     debug_draw.clear();
     for (int i = 0; i < debug_text.size(); i++)
     {
-        float poss_y = player.position.y - i * 10 + 20;
+        float poss_y = player.position.y - i * 20 + 20;
         Text txt(font);
         txt.setString(debug_text[i]);
         txt.setPosition({ player.position.x , poss_y });
         txt.setFillColor(Color::Red);
-        txt.setCharacterSize(15);
+        txt.setCharacterSize(20);
         window->draw(txt);
     }
     debug_text.clear();

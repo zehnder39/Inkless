@@ -9,16 +9,28 @@ vector<CircleShape> entities;
 
 Player player(960, 540);
 CircleShape entity1(100.f);
-RectangleShape ground({1024.f, 1024.f});
+RectangleShape ground({1024.f, 768.f});
 RenderWindow* window = nullptr;
 Texture ground_texture;
 Texture rock_texture;
 Texture player_texture;
 Texture jump_texture;
 Sprite player_model(player_texture);
-vector<vector<Chunk>> world_chunks = { {},{} };
+vector<vector<Chunk>> world_chunks = { {}, {}, {} };
 Tile* breaking[2];
 
+pair<Vector2i, Vector2i> pos_to_chunk_subc(Vector2f pos)
+{
+	Vector2i chunk = { static_cast<int>(floor(pos.x / (tile_size.x * 16))), static_cast<int>(floor(pos.y / (tile_size.y * 16))) };
+	Vector2i sub_c = { static_cast<int>((static_cast<int>(pos.x) % (tile_size.x * 16)) / tile_size.x), static_cast<int>((static_cast<int>(pos.y) % (tile_size.y * 16)) / tile_size.y) };
+	return make_pair(chunk, sub_c);
+}
+
+Tile* get_tile(Vector2i chunk, Vector2i subc)
+{
+	Tile* tile = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
+	return tile;
+}
 
 Player::Player(float set_x, float set_y)
 {
@@ -38,8 +50,7 @@ void Player::move(float dx, float dy)
 		position.x += dx / norm;
 	if (check_move(0, dy))
 		position.y += dy / norm;
-	chunk = { static_cast<int>(floor(position.x / 1024)), static_cast<int>(floor(position.y / 1024))};
-	sub_c = { static_cast<int>((static_cast<int>(position.x) % 1024) / 64), static_cast<int>((static_cast<int>(position.y) % 1024) / 64) };
+	chunk = pos_to_chunk_subc(player.position).first;
 	jump(dx != 0 or dy != 0, dx);
 }
 
@@ -90,10 +101,10 @@ void Tile::draw()
 Chunk::Chunk(Vector2i poss)
 {
 	position = poss;
-	ground.setSize({ 1024.f, 1024.f });
-	ground.setPosition(Vector2f(1024 * position.x, 1024 * position.y));
+	ground.setSize({ 1024.f, 768.f });
+	ground.setPosition(Vector2f((tile_size.x * 16) * position.x, (tile_size.y * 16) * position.y));
 	ground.setTexture(&ground_texture);
-	ground.setTextureRect(IntRect({ 0, 0 }, { 512, 512 }));
+	ground.setTextureRect(IntRect({ 0, 0 }, { 384, 512 }));
 }
 vector<Tile*> Chunk::list_tiles()
 {
@@ -116,7 +127,7 @@ void Chunk::rockdom(Texture tex)
 		{
 			int num = rand() % 8;
 			if (num == 0)
-				changeables[x][y] = new Tile(Vector2f( (x * 64) + (position.x * 1024), (y * 64) + (position.y * 1024) ), Vector2i(x,y), Vector2i(position.x, position.y), true, true, 45, tex);
+				changeables[x][y] = new Tile(Vector2f( (x * tile_size.x) + (position.x * (tile_size.x * 16)), (y * tile_size.y) + (position.y * (tile_size.y * 16)) ), Vector2i(x,y), Vector2i(position.x, position.y), true, true, 45, tex);
 		}
 	}
 }

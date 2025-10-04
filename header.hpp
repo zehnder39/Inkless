@@ -4,17 +4,18 @@
 #include <string>
 #include <vector>
 #include <array>
-#include <string>
+#include <utility>
 
 using namespace std;
 using namespace sf;
 
 // flags:
-extern bool moving_left, moving_right, moving_up, moving_down, break_key;
+extern bool moving_left, moving_right, moving_up, moving_down;
 extern bool facing_left;
 extern bool looking_up, looking_down, looking_right, looking_left;
 extern bool should_close;
-extern bool left_click, right_click;
+extern bool mouse_1, mouse_2;
+extern bool use_key;
 
 extern RenderWindow* window;
 extern CircleShape entity1;
@@ -28,7 +29,9 @@ extern Texture jump_texture;
 extern vector<CircleShape> debug_draw;
 extern vector<string> debug_text;
 extern Vector2i mouse_pos;
-
+extern Vector2f player_local_poss;
+extern Vector2f view_offset;
+extern Vector2i tile_size;
 
 void create_world();
 void update_world();
@@ -39,6 +42,7 @@ void create_instance();
 bool check_move(float dx, float dy);
 void check_action();
 bool check_breaking();
+pair<Vector2i, Vector2i> pos_to_chunk_subc(Vector2f pos);
 
 class Player
 {
@@ -71,7 +75,7 @@ public:
 
 void delete_tile(Tile* tile);
 extern Tile* breaking_mem;
-
+Tile* get_tile(Vector2i chunk, Vector2i subc);
 class Chunk
 {
 public:

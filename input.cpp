@@ -11,9 +11,9 @@ bool looking_right;
 bool looking_left;
 bool moving_left, moving_right, moving_up, moving_down;
 bool facing_left = false, facing_up = false;
-bool break_key = false;
 bool should_close = false;
-bool left_click, right_click;
+bool mouse_1, mouse_2;
+bool use_key;
 
 Vector2i mouse_pos;
 
@@ -43,7 +43,7 @@ void key_input()
                 should_close = true;
                 break;
             case Keyboard::Key::E:
-                break_key = true;
+                use_key = true;
                 break;
             case Keyboard::Key::T:
                 player_model.setRotation(degrees(0));
@@ -67,7 +67,7 @@ void key_input()
                 moving_down = false;
                 break;
             case Keyboard::Key::E:
-                break_key = false;
+                use_key = false;
             }
         }
     }
@@ -75,9 +75,10 @@ void key_input()
 
 void get_mouse_look()
 {
-    Vector2f dir = { mouse_pos.x - player.position.x, -mouse_pos.y + player.position.y };
+    Vector2f dir = { mouse_pos.x - player.position.x, - mouse_pos.y + player.position.y };
     float angle = atan2f(dir.y, dir.x);
-	if (angle >= -1 * numbers::pi / 3 and angle <= numbers::pi / 3)
+    debug_text.push_back(to_string(angle));
+	if (angle >= - numbers::pi / 3 and angle <= numbers::pi / 3)
         looking_right = true;
     else
 		looking_right = false;
@@ -97,14 +98,11 @@ void get_mouse_look()
 
 void mouse_input()
 {
-    mouse_pos = Mouse::getPosition(*window);
+    mouse_pos = Vector2i(Mouse::getPosition(*window).x + view_offset.x - window->getSize().x / 2, Mouse::getPosition(*window).y + view_offset.y - window->getSize().y / 2);
     if (Mouse::isButtonPressed(Mouse::Button::Left))
-        {
-        CircleShape cir(10.f);
-        cir.setFillColor(Color::Red);
-        cir.setPosition({ static_cast<float>(mouse_pos.x), static_cast<float>(mouse_pos.y) });
-        debug_draw.push_back(cir);
-	}
+        mouse_1 = true;
+    else
+        mouse_1 = false;
 	get_mouse_look();
 
 }
