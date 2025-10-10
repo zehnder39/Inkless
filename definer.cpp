@@ -17,18 +17,17 @@ Texture player_texture;
 Texture jump_texture;
 Sprite player_model(player_texture);
 vector<vector<Chunk>> world_chunks = { {}, {}, {} };
-Tile* breaking[2];
 
 pair<Vector2i, Vector2i> pos_to_chunk_subc(Vector2f pos)
 {
 	Vector2i chunk = { static_cast<int>(floor(pos.x / (tile_size.x * 16))), static_cast<int>(floor(pos.y / (tile_size.y * 16))) };
-	Vector2i sub_c = { static_cast<int>((static_cast<int>(pos.x) % (tile_size.x * 16)) / tile_size.x), static_cast<int>((static_cast<int>(pos.y) % (tile_size.y * 16)) / tile_size.y) };
-	return make_pair(chunk, sub_c);
+	Vector2i subc = { static_cast<int>((static_cast<int>(pos.x) % (tile_size.x * 16)) / tile_size.x), static_cast<int>((static_cast<int>(pos.y) % (tile_size.y * 16)) / tile_size.y) };
+	return make_pair(chunk, subc);
 }
 
 Tile* get_tile(Vector2i chunk, Vector2i subc)
 {
-	Tile* tile = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
+	Tile* tile = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y].get();
 	return tile;
 }
 
@@ -79,21 +78,20 @@ void Player::jump(bool moving, float dx)
 	}
 }
 
-Tile::Tile(Vector2f poss,Vector2i sub, Vector2i chun, bool sol, bool breaka, int dura , Texture tex)
+Rock::Rock(Vector2i sub, Vector2i chun)
 {
-	solid = sol;
-	breakable = breaka;
-	texture = tex;
-	position = poss;
-	durability = dura;
-	sub_c = sub;
+	subc = sub;
 	chunk = chun;
+	solid = true;
+	breakable = true;
+	durability = 45;
+	break_offset = 0;
+	texture = rock_texture;
 }
 
-void Tile::draw()
-{
+void Tile::draw() {
 	Sprite sprite(texture);
-	sprite.setPosition({ position.x + break_offset, position.y });
+	sprite.setPosition(Vector2f( tile_size.x * (chunk.x * 16 + subc.x) + break_offset, tile_size.y * (chunk.y * 16 + subc.y) ));
 	sprite.scale({ 4.f, 4.f });
 	window->draw(sprite);
 }
@@ -113,13 +111,14 @@ vector<Tile*> Chunk::list_tiles()
 	{
 		for (int y = 0; y < 16; y++)
 		{
-			in_chunk.push_back(changeables[x][y]);
+			if (changeables[x][y] != nullptr)
+				in_chunk.push_back(changeables[x][y].get());
 		}
 	}
 	return in_chunk;
 }
 
-void Chunk::rockdom(Texture tex)
+void Chunk::rockdom()
 {
 	for (int x = 0; x < 16; x++)
 	{
@@ -127,7 +126,7 @@ void Chunk::rockdom(Texture tex)
 		{
 			int num = rand() % 8;
 			if (num == 0)
-				changeables[x][y] = new Tile(Vector2f( (x * tile_size.x) + (position.x * (tile_size.x * 16)), (y * tile_size.y) + (position.y * (tile_size.y * 16)) ), Vector2i(x,y), Vector2i(position.x, position.y), true, true, 45, tex);
+				changeables[x][y] = make_unique<Rock>(Vector2i(x,y), Vector2i(position.x, position.y));
 		}
 	}
 }

@@ -29,7 +29,7 @@ bool check_move(float dx, float dy)
 	{
 		if (0 <= chunk.y and chunk.y < world_chunks[chunk.x].size())
 		{
-			auto chunk_to_check = world_chunks[chunk.x][chunk.y];
+			Chunk& chunk_to_check = world_chunks[chunk.x][chunk.y];
 			if (chunk_to_check.changeables[subc.x][subc.y] == NULL)
 				return true;
 		}

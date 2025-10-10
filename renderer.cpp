@@ -41,10 +41,10 @@ void render_player()
     player_model.setPosition({ player.position.x, player.position.y + player.jump_offset });
     window->draw(player_model);
     Tile* tile_below;
-    if (player.sub_c.y < 15)
-        tile_below = world_chunks[player.chunk.x][player.chunk.y].changeables[player.sub_c.x][player.sub_c.y + 1];
+    if (player.subc.y < 15)
+        tile_below = world_chunks[player.chunk.x][player.chunk.y].changeables[player.subc.x][player.subc.y + 1].get();
     else
-        tile_below = world_chunks[player.chunk.x][player.chunk.y + 1].changeables[player.sub_c.x][0];
+        tile_below = world_chunks[player.chunk.x][player.chunk.y + 1].changeables[player.subc.x][0].get();
     if (tile_below != nullptr)
         tile_below->draw();
 }
@@ -60,7 +60,7 @@ void render_world()
 {
     for (int i = 0; i < world_chunks.size(); i++)
     {
-        for (Chunk current : world_chunks[i])
+        for (Chunk& current : world_chunks[i])
         {
             window->draw(current.ground);
             for (Tile* tile : current.list_tiles())

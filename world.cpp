@@ -7,10 +7,11 @@
 #include "header.hpp"
 
 Vector2i tile_size = {64, 48};
+vector<vector<Chunk>> world_chunks;
 
 void delete_tile(Tile* tile)
 {
-	world_chunks[tile->chunk.x][tile->chunk.y].changeables[tile->sub_c.x][tile->sub_c.y] = nullptr;
+	world_chunks[tile->chunk.x][tile->chunk.y].changeables[tile->subc.x][tile->subc.y] = nullptr;
 	delete tile;
 }
 
@@ -40,7 +41,7 @@ void create_world()
 			if (world_chunks.size() < x)
 				world_chunks.push_back({});
 			world_chunks[x].push_back(c);
-			world_chunks[x][y].rockdom(rock_texture);
+			world_chunks[x][y].rockdom();
 		}
 	}
 	
@@ -69,14 +70,14 @@ bool check_breaking()
 		else
 			dy = 0;
 		Vector2i chunk_poss = pos_to_chunk_subc({ player.position.x + dx, player.position.y + dy }).first;
-		Vector2i sub_c = pos_to_chunk_subc({ player.position.x + dx, player.position.y + dy }).second;
+		Vector2i subc = pos_to_chunk_subc({ player.position.x + dx, player.position.y + dy }).second;
 		if (0 <= chunk_poss.x and chunk_poss.x < world_chunks.size() and 0 <= chunk_poss.y and chunk_poss.y < world_chunks[chunk_poss.x].size())
 		{
-			Chunk chunk = world_chunks[chunk_poss.x][chunk_poss.y];
-			Tile* tile = chunk.changeables[sub_c.x][sub_c.y];
+			Chunk& chunk = world_chunks[chunk_poss.x][chunk_poss.y];
+			Tile* tile = chunk.changeables[subc.x][subc.y].get();
 			CircleShape cir(30.f);
 			cir.setFillColor(Color::Red);
-			cir.setPosition(Vector2f(chunk_poss.x * (tile_size.x * 16) + sub_c.x * tile_size.x, chunk_poss.y * (tile_size.y * 16) + sub_c.y * tile_size.y));
+			cir.setPosition(Vector2f(chunk_poss.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk_poss.y * (tile_size.y * 16) + subc.y * tile_size.y));
 			debug_draw.push_back(cir);
 			if (tile != nullptr)
 			{
@@ -126,7 +127,7 @@ void place_gutter()
 		if (get_tile(chunk, subc) == nullptr)
 		{
 			debug_text.push_back("Placing ...");
-			world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y] = new Tile(Vector2f((subc.x * tile_size.x) + (chunk.x * (tile_size.x * 16)), (subc.y * tile_size.y) + (chunk.y * (tile_size.y * 16))), Vector2i(subc.x, subc.y), Vector2i(chunk.x, chunk.y), true, true, 45, rock_texture);
+			world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y] = make_unique<Rock>(Vector2i(subc.x, subc.y), Vector2i(chunk.x, chunk.y));
 		}
 	}
 }

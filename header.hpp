@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <utility>
+#include <memory>
 
 using namespace std;
 using namespace sf;
@@ -49,7 +50,7 @@ class Player
 public:
 	Vector2f position = {};
 	Vector2i chunk = {};
-	Vector2i sub_c = {};
+	Vector2i subc = {};
 	int jump_state = 0;
 	float jump_offset = 0;
 	Player(float set_x, float set_y);
@@ -58,19 +59,26 @@ public:
 };
 extern Player player;
 
-class Tile
-{
+class Tile {
 public:
 	bool solid;
 	bool breakable;
 	int durability;
-	Vector2f position;
 	float break_offset = 0;
-	Vector2i sub_c;
+	Vector2i subc;
 	Vector2i chunk;
 	Texture texture;
-	Tile(Vector2f poss, Vector2i sub, Vector2i chun, bool sol, bool breaka, int dura, Texture tex);
-	void draw();
+
+	virtual ~Tile() = default;
+
+	virtual void interact() {}
+	virtual void draw();
+};
+
+class Rock : public Tile
+{
+public:
+	explicit Rock(Vector2i sub, Vector2i chun);
 };
 
 void delete_tile(Tile* tile);
@@ -80,9 +88,9 @@ class Chunk
 {
 public:
 	Vector2i position = {};
-	Tile* changeables[16][16] = {nullptr};
+	unique_ptr<Tile> changeables[16][16] = {nullptr};
 	RectangleShape ground;
-	void rockdom(Texture tex);
+	void rockdom();
 	vector<Tile*> list_tiles();
 	Chunk(Vector2i);
 };
