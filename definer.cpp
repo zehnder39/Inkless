@@ -15,8 +15,8 @@ Texture ground_texture;
 Texture rock_texture;
 Texture player_texture;
 Texture jump_texture;
+Texture gutter_texture;
 Sprite player_model(player_texture);
-vector<vector<Chunk>> world_chunks = { {}, {}, {} };
 
 pair<Vector2i, Vector2i> pos_to_chunk_subc(Vector2f pos)
 {
@@ -87,6 +87,17 @@ Rock::Rock(Vector2i sub, Vector2i chun)
 	durability = 45;
 	break_offset = 0;
 	texture = rock_texture;
+}
+
+Gutter::Gutter(Vector2i sub, Vector2i chun)
+{
+	subc = sub;
+	chunk = chun;
+	solid = false;
+	breakable = true;
+	durability = 10;
+	break_offset = 0;
+	texture = gutter_texture;
 }
 
 void Tile::draw() {

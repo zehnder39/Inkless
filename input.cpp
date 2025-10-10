@@ -5,15 +5,9 @@
 
 #include "header.hpp"
 
-bool looking_up;
-bool looking_down;
-bool looking_right;
-bool looking_left;
+bool looking_up, looking_down, looking_right, looking_left;
 bool moving_left, moving_right, moving_up, moving_down;
-bool facing_left = false, facing_up = false;
-bool should_close = false;
-bool mouse_1, mouse_2;
-bool use_key;
+bool facing_left = false, facing_up = false, should_close = false, mouse_1, mouse_2, use_key, debug_key;
 
 Vector2i mouse_pos;
 
@@ -46,7 +40,7 @@ void key_input()
                 use_key = true;
                 break;
             case Keyboard::Key::T:
-                player_model.setRotation(degrees(0));
+                debug_key = true;
                 break;
             }
         }

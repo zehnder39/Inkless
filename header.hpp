@@ -14,9 +14,7 @@ using namespace sf;
 extern bool moving_left, moving_right, moving_up, moving_down;
 extern bool facing_left;
 extern bool looking_up, looking_down, looking_right, looking_left;
-extern bool should_close;
-extern bool mouse_1, mouse_2;
-extern bool use_key;
+extern bool should_close, mouse_1, mouse_2, use_key, debug_key;
 
 extern RenderWindow* window;
 extern CircleShape entity1;
@@ -27,6 +25,7 @@ extern Texture ground_texture;
 extern Texture rock_texture;
 extern Texture player_texture;
 extern Texture jump_texture;
+extern Texture gutter_texture;
 extern vector<CircleShape> debug_draw;
 extern vector<string> debug_text;
 extern Vector2i mouse_pos;
@@ -79,6 +78,16 @@ class Rock : public Tile
 {
 public:
 	explicit Rock(Vector2i sub, Vector2i chun);
+};
+
+class Gutter : public Tile
+{
+public:
+	bool up;
+	bool down;
+	bool left;
+	bool right;
+	explicit Gutter(Vector2i sub, Vector2i chun);
 };
 
 void delete_tile(Tile* tile);

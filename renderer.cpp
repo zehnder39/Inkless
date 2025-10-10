@@ -8,7 +8,7 @@ vector<string> debug_text;
 
 Font font("ARIAL.ttf");
 
-bool debug_visual = true;
+bool debug_visual = false;
 
 Vector2f view_offset = {0.f, 0.f};
 Vector2f player_local_poss;
@@ -58,7 +58,7 @@ void render_entities()
 
 void render_world()
 {
-    for (int i = 0; i < world_chunks.size(); i++)
+    for (int i = 0; i < int(world_chunks.size()); i++)
     {
         for (Chunk& current : world_chunks[i])
         {
@@ -74,36 +74,43 @@ void render_world()
 
 void render_debug()
 {
-    CircleShape poss(2.f);
-    poss.setFillColor(Color::Red);
-    poss.setPosition({ player.position.x , player.position.y });
-    window->draw(poss);
-    for (auto cir : debug_draw)
+    if (debug_visual)
     {
-        window->draw(cir);
+        CircleShape poss(2.f);
+        poss.setFillColor(Color::Red);
+        poss.setPosition({ player.position.x , player.position.y });
+        window->draw(poss);
+        for (auto cir : debug_draw)
+        {
+            window->draw(cir);
+        }
+        for (int i = 0; i < int(debug_text.size()); i++)
+        {
+            float poss_y = player.position.y - i * 20 + 20;
+            Text txt(font);
+            txt.setString(debug_text[i]);
+            txt.setPosition({ player.position.x , poss_y });
+            txt.setFillColor(Color::Red);
+            txt.setCharacterSize(20);
+            window->draw(txt);
+        }
     }
-    debug_draw.clear();
-    for (int i = 0; i < debug_text.size(); i++)
-    {
-        float poss_y = player.position.y - i * 20 + 20;
-        Text txt(font);
-        txt.setString(debug_text[i]);
-        txt.setPosition({ player.position.x , poss_y });
-        txt.setFillColor(Color::Red);
-        txt.setCharacterSize(20);
-        window->draw(txt);
-    }
+	debug_draw.clear();
     debug_text.clear();
 }
 
 void render()
 {
     window->clear();
+    if (debug_key)
+    {
+        debug_visual = !debug_visual;
+        debug_key = false;
+    }
     set_view_offset();
     render_world();
     render_entities();
     render_player();
-    if (debug_visual)
-        render_debug();
+    render_debug();
     window->display();
 }
