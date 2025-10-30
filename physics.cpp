@@ -2,20 +2,26 @@
 
 #include <iostream>
 
+void tile_interaction()
+{
+	
+}
+
 void move_player()
 {
+	player.speed = player.base_speed;
 	float sx = 0;
 	float sy = 0;
 	if (moving_left) {
-		sx += -3.5;
+		sx += -player.speed;
 	}
 	if (moving_right) {
-		sx += 3.5;
+		sx += player.speed;
 	}
 	if (moving_up)
-		sy += -3.5;
+		sy += -player.speed;
 	if (moving_down)
-		sy += 3.5;
+		sy += player.speed;
 	player.move(sx, sy);
 }
 
@@ -23,23 +29,22 @@ bool check_move(float dx, float dy)
 {
 	float nx = player.position.x + dx;
 	float ny = player.position.y + dy;
-	Vector2i chunk = pos_to_chunk_subc({ nx, ny }).first;
-	Vector2i subc = pos_to_chunk_subc({ nx, ny }).second;
-	if (0 <= chunk.x and chunk.x <= int(world_chunks.size()))
+	auto chunk_subc = pos_to_chunk_subc({ nx, ny });
+	Vector2i chunk = chunk_subc.first.first;
+	Vector2i subc = chunk_subc.first.second;
+	if (chunk_subc.second)
 	{
-		if (0 <= chunk.y and chunk.y <= int(world_chunks[chunk.x].size()))
-		{
-			Chunk& chunk_to_check = world_chunks[chunk.x][chunk.y];
-			if (chunk_to_check.changeables[subc.x][subc.y] == nullptr)
-				return true;
-			else if (chunk_to_check.changeables[subc.x][subc.y]->solid == false)
-				return true;
-		}
+		Chunk& chunk_to_check = world_chunks[chunk.x][chunk.y];
+		if (chunk_to_check.changeables[subc.x][subc.y] == nullptr)
+			return true;
+		else if (!chunk_to_check.changeables[subc.x][subc.y]->solid)
+			return true;
 	}
 	return false;
 }
 
 void check_action()
 {
-
+	if (use_key)
+		tile_interaction();
 }

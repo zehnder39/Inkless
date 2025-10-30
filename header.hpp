@@ -25,10 +25,11 @@ extern Texture ground_texture;
 extern Texture rock_texture;
 extern Texture player_texture;
 extern Texture jump_texture;
-extern Texture gutter_texture;
+extern Texture gutter_point_texture, gutter_horizontal_texture, gutter_vertical_texture, gutter_up_left_texture, gutter_down_left_texture, gutter_branch_horizontal_texture, gutter_branch_horizontal_down_texture, gutter_branch_vertical_texture, gutter_up_texture, gutter_down_texture, gutter_left_texture;
 extern vector<CircleShape> debug_draw;
-extern vector<string> debug_text;
+extern vector<string> debug_text, debug_info;
 extern Vector2i mouse_pos;
+extern Vector2f mouse_vector;
 extern Vector2f player_local_poss;
 extern Vector2f view_offset;
 extern Vector2i tile_size;
@@ -42,7 +43,11 @@ void create_instance();
 bool check_move(float dx, float dy);
 void check_action();
 bool check_breaking();
-pair<Vector2i, Vector2i> pos_to_chunk_subc(Vector2f pos);
+void load_textures();
+void update_surroundings(Vector2i chunk, Vector2i subc);
+pair<pair<Vector2i, Vector2i>, bool> pos_to_chunk_subc(Vector2f pos);
+pair<pair<Vector2i, Vector2i>, bool> tile_looking_at();
+pair<pair<Vector2i, Vector2i>, bool> makeInRange(Vector2i chunk, Vector2i subc);
 
 class Player
 {
@@ -50,6 +55,10 @@ public:
 	Vector2f position = {};
 	Vector2i chunk = {};
 	Vector2i subc = {};
+	int base_speed = 3.5;
+	int speed;
+	int swim_speed;
+	bool swiming;
 	int jump_state = 0;
 	float jump_offset = 0;
 	Player(float set_x, float set_y);
@@ -66,17 +75,22 @@ public:
 	float break_offset = 0;
 	Vector2i subc;
 	Vector2i chunk;
+	Vector2f baseScale = {1.f, 1.f};
+	Vector2f baseOffset = { 0.f, 0.f };
 	Texture texture;
 
 	virtual ~Tile() = default;
 
-	virtual void interact() {}
+	virtual void interact() = 0;
+	virtual void update() = 0;
 	virtual void draw();
 };
 
 class Rock : public Tile
 {
 public:
+	void interact() override {}
+	void update() override {}
 	explicit Rock(Vector2i sub, Vector2i chun);
 };
 
@@ -87,6 +101,8 @@ public:
 	bool down;
 	bool left;
 	bool right;
+	void interact() override;
+	void update() override;
 	explicit Gutter(Vector2i sub, Vector2i chun);
 };
 

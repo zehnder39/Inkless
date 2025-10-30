@@ -155,7 +155,19 @@
     <Image Include="ground2.png" />
     <Image Include="ground3.png" />
     <Image Include="gutter.png" />
+    <Image Include="gutter2.png" />
+    <Image Include="gutter_branch_vertical.png" />
+    <Image Include="gutter_branch_horizontal.png" />
+    <Image Include="gutter_branch_horizontal_down.png" />
+    <Image Include="gutter_down.png" />
+    <Image Include="gutter_down_left.png" />
+    <Image Include="gutter_left.png" />
+    <Image Include="gutter_up_left.png" />
+    <Image Include="gutter_point.png" />
+    <Image Include="gutter_up.png" />
+    <Image Include="gutter_vertical.png" />
     <Image Include="rock.png" />
+    <Image Include="rock2.png" />
     <Image Include="squid_player.png" />
     <Image Include="squid_jump.png" />
   </ItemGroup>

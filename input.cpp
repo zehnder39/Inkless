@@ -7,9 +7,10 @@
 
 bool looking_up, looking_down, looking_right, looking_left;
 bool moving_left, moving_right, moving_up, moving_down;
-bool facing_left = false, facing_up = false, should_close = false, mouse_1, mouse_2, use_key, debug_key;
+bool facing_left, facing_up, should_close, mouse_1, mouse_2, use_key, debug_key;
 
 Vector2i mouse_pos;
+Vector2f mouse_vector;
 
 void key_input()
 {
@@ -69,25 +70,21 @@ void key_input()
 
 void get_mouse_look()
 {
-    Vector2f dir = { mouse_pos.x - player.position.x, - mouse_pos.y + player.position.y };
-    float angle = atan2f(dir.y, dir.x);
+    mouse_vector = { mouse_pos.x - player.position.x, - mouse_pos.y + player.position.y };
+    float angle = atan2f(mouse_vector.y, mouse_vector.x);
     debug_text.push_back(to_string(angle));
+    looking_down = false;
+    looking_up = false;
+    looking_left = false;
+    looking_right = false;
 	if (angle >= - numbers::pi / 3 and angle <= numbers::pi / 3)
         looking_right = true;
-    else
-		looking_right = false;
     if (angle >= numbers::pi / 6 and angle <= numbers::pi * 5 / 6)
 		looking_up = true;
-	else
-		looking_up = false;
-    if (angle >= numbers::pi * 2 / 3 or angle <= - numbers::pi * 2 / 3)
+    if (angle >= numbers::pi * 2 / 3 or angle <= -numbers::pi * 2 / 3)
         looking_left = true;
-	else
-		looking_left = false;
     if (angle >= - numbers::pi * 5 / 6 and angle <=  - numbers::pi / 6)
         looking_down = true;
-    else
-		looking_down = false;
 }
 
 void mouse_input()
@@ -97,6 +94,10 @@ void mouse_input()
         mouse_1 = true;
     else
         mouse_1 = false;
+    if (Mouse::isButtonPressed(Mouse::Button::Right))
+        mouse_2 = true;
+    else
+        mouse_2 = false;
 	get_mouse_look();
 
 }

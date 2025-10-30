@@ -3,15 +3,60 @@
 
 #include "header.hpp"
 
+Texture gutter_point_texture, gutter_horizontal_texture, gutter_vertical_texture, gutter_up_left_texture, gutter_down_left_texture, gutter_branch_horizontal_down_texture, gutter_branch_horizontal_texture, gutter_branch_vertical_texture, gutter_up_texture, gutter_down_texture, gutter_left_texture;
+Texture ground_texture;
+Texture rock_texture;
+Texture player_texture;
+Texture jump_texture;
+Sprite player_model(player_texture);
+
 vector<CircleShape> debug_draw;
-vector<string> debug_text;
+vector<string> debug_text, debug_info;
 
 Font font("ARIAL.ttf");
 
-bool debug_visual = false;
+vector<CircleShape> entities;
+
+Player player(960, 540);
+CircleShape entity1(100.f);
+RectangleShape ground({ 1024.f, 768.f });
+RenderWindow* window = nullptr;
 
 Vector2f view_offset = {0.f, 0.f};
 Vector2f player_local_poss;
+
+
+bool debug_visual = false;
+
+
+void load_textures()
+{
+    //ground
+    ground_texture.loadFromFile("ground3.png", false, IntRect({ 0, 0 }, { 128, 128 }));
+    ground_texture.setRepeated(true);
+    //player
+    player_texture.loadFromFile("squid_player.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    jump_texture.loadFromFile("squid_jump.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    player_model.setTexture(player_texture);
+    player_model.setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
+    player_model.setScale({ 2.f, 2.f });
+    //rock
+    rock_texture.loadFromFile("rock2.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    //gutter
+    gutter_horizontal_texture.loadFromFile("gutter2.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_point_texture.loadFromFile("gutter_point.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_vertical_texture.loadFromFile("gutter_vertical.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_up_texture.loadFromFile("gutter_up.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_horizontal_texture.loadFromFile("gutter.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_point_texture.loadFromFile("gutter_point.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_up_left_texture.loadFromFile("gutter_up_left.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_left_texture.loadFromFile("gutter_left.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_down_left_texture.loadFromFile("gutter_down_left.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_down_texture.loadFromFile("gutter_down.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_branch_vertical_texture.loadFromFile("gutter_branch_vertical.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_branch_horizontal_texture.loadFromFile("gutter_branch_horizontal.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+    gutter_branch_horizontal_down_texture.loadFromFile("gutter_branch_horizontal_down.png", false, IntRect({ 0, 0 }, { 32, 32 }));
+}
 
 void set_view_offset()
 {
@@ -41,12 +86,18 @@ void render_player()
     player_model.setPosition({ player.position.x, player.position.y + player.jump_offset });
     window->draw(player_model);
     Tile* tile_below;
-    if (player.subc.y < 15)
-        tile_below = world_chunks[player.chunk.x][player.chunk.y].changeables[player.subc.x][player.subc.y + 1].get();
+    if (player.subc.y != 15)
+        tile_below = get_tile(player.chunk, { player.subc.x, player.subc.y + 1 });
     else
-        tile_below = world_chunks[player.chunk.x][player.chunk.y + 1].changeables[player.subc.x][0].get();
+        tile_below = get_tile({ player.chunk.x, player.chunk.y - 1 }, { player.subc.x, 0 });
     if (tile_below != nullptr)
+    {
         tile_below->draw();
+        CircleShape cir(30.f);
+        cir.setFillColor(Color::Green);
+        cir.setPosition(Vector2f(tile_below->chunk.x * (tile_size.x * 16) + tile_below->subc.x * tile_size.x, tile_below->chunk.y * (tile_size.y * 16) + tile_below->subc.y * tile_size.y));
+        debug_draw.push_back(cir);
+    }
 }
 
 void render_entities()
@@ -58,6 +109,14 @@ void render_entities()
 
 void render_world()
 {
+    // draw all the nearby chunk floor then the tiles on top to avoid superposition
+    for (int i = 0; i < int(world_chunks.size()); i++)
+    {
+        for (Chunk& current : world_chunks[i])
+        {
+            window->draw(current.ground);
+        }
+    }
     for (int i = 0; i < int(world_chunks.size()); i++)
     {
         for (Chunk& current : world_chunks[i])
@@ -80,23 +139,36 @@ void render_debug()
         poss.setFillColor(Color::Red);
         poss.setPosition({ player.position.x , player.position.y });
         window->draw(poss);
+        int txt_size = 20;
         for (auto cir : debug_draw)
         {
             window->draw(cir);
         }
         for (int i = 0; i < int(debug_text.size()); i++)
         {
-            float poss_y = player.position.y - i * 20 + 20;
+            float poss_y = player.position.y + i * txt_size;
             Text txt(font);
             txt.setString(debug_text[i]);
             txt.setPosition({ player.position.x , poss_y });
             txt.setFillColor(Color::Red);
-            txt.setCharacterSize(20);
+            txt.setCharacterSize(txt_size);
+            window->draw(txt);
+        }
+        for (int i = 0; i < int(debug_info.size()); i++)
+        {
+            float pos_x = view_offset.x + (window->getSize().x / 2) - (debug_info[i].length() * txt_size / 2);
+            float pos_y = view_offset.y - (window->getSize().y / 2) + (i * txt_size);
+            Text txt(font);
+            txt.setString(debug_info[i]);
+            txt.setPosition({ pos_x , pos_y });
+            txt.setFillColor(Color::Red);
+            txt.setCharacterSize(txt_size);
             window->draw(txt);
         }
     }
 	debug_draw.clear();
     debug_text.clear();
+    debug_info.clear();
 }
 
 void render()

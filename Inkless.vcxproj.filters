@@ -55,5 +55,47 @@
     <Image Include="squid_player.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="ground3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="rock2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_vertical.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_point.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_up_left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_down.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_branch_horizontal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_down_left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_branch_vertical.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_up.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="gutter_branch_horizontal_down.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
