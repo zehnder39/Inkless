@@ -20,7 +20,7 @@ int main()
     {
         auto timeStart = high_resolution_clock::now();
         input();
-        move_player();
+        playerMovement();
         check_action();
         update_world();
         duration<double, std::milli> calculationTime = high_resolution_clock::now() - timeStart;

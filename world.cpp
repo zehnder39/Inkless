@@ -68,7 +68,7 @@ bool check_breaking()
 			cir.setFillColor(Color::Red);
 			cir.setPosition(Vector2f(chunk_poss.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk_poss.y * (tile_size.y * 16) + subc.y * tile_size.y));
 			debug_draw.push_back(cir);
-			if (tile != nullptr)
+			if (tile)
 			{
 				if (tile != breaking_mem)
 				{
@@ -87,7 +87,7 @@ bool check_breaking()
 			}
 		}
 	}
-	if (breaking_mem != nullptr)
+	if (breaking_mem)
 	{
 		breaking_mem->break_offset = 0;
 	}
@@ -105,10 +105,22 @@ void place_gutter()
 		cir.setFillColor(Color::Blue);
 		cir.setPosition(Vector2f(chunk.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk.y * (tile_size.y * 16) + subc.y * tile_size.y));
 		debug_draw.push_back(cir);
-		if (get_tile(chunk, subc) == nullptr)
+		if (!get_tile(chunk, subc))
 		{
 			world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y] = make_unique<Gutter>(Vector2i(subc.x, subc.y), Vector2i(chunk.x, chunk.y));
+			auto& slot = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
+			std::cout << "Before updating surroundings: \n PLACED: unique_ptr.get() = " << slot.get()
+				<< " &typeid(Tile)=" << &typeid(Tile)
+				<< " &typeid(Gutter)=" << &typeid(Gutter)
+				<< " sizeof(Tile)=" << sizeof(Tile)
+				<< " sizeof(Gutter)=" << sizeof(Gutter) << '\n';
 			update_surroundings(chunk, subc);
+			auto& slot2 = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
+			std::cout << "After updating surroundings: \n PLACED: unique_ptr.get() = " << slot2.get()
+				<< " &typeid(Tile)=" << &typeid(Tile)
+				<< " &typeid(Gutter)=" << &typeid(Gutter)
+				<< " sizeof(Tile)=" << sizeof(Tile)
+				<< " sizeof(Gutter)=" << sizeof(Gutter) << '\n';
 		}
 	}
 }

@@ -83,7 +83,7 @@ void create_instance()
 
 void render_player()
 {
-    player_model.setPosition({ player.position.x, player.position.y + player.jump_offset });
+    player_model.setPosition({ player.position.x, player.position.y + player.animation_offset });
     window->draw(player_model);
     Tile* tile_below;
     if (player.subc.y != 15)
@@ -121,7 +121,6 @@ void render_world()
     {
         for (Chunk& current : world_chunks[i])
         {
-            window->draw(current.ground);
             for (Tile* tile : current.list_tiles())
             {
                 if (tile != NULL)

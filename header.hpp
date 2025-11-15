@@ -12,6 +12,7 @@ using namespace sf;
 
 // flags:
 extern bool moving_left, moving_right, moving_up, moving_down;
+extern bool swimmingUp, swimmingDown, swimmingLeft, swimmingRight;
 extern bool facing_left;
 extern bool looking_up, looking_down, looking_right, looking_left;
 extern bool should_close, mouse_1, mouse_2, use_key, debug_key;
@@ -38,7 +39,7 @@ void create_world();
 void update_world();
 void render();
 void input();
-void move_player();
+void playerMovement();
 void create_instance();
 bool check_move(float dx, float dy);
 void check_action();
@@ -48,6 +49,7 @@ void update_surroundings(Vector2i chunk, Vector2i subc);
 pair<pair<Vector2i, Vector2i>, bool> pos_to_chunk_subc(Vector2f pos);
 pair<pair<Vector2i, Vector2i>, bool> tile_looking_at();
 pair<pair<Vector2i, Vector2i>, bool> makeInRange(Vector2i chunk, Vector2i subc);
+Vector2i chunk_subc_to_pos(Vector2i chunk, Vector2i subc);
 
 class Player
 {
@@ -57,13 +59,16 @@ public:
 	Vector2i subc = {};
 	int base_speed = 3.5;
 	int speed;
-	int swim_speed;
-	bool swiming;
-	int jump_state = 0;
-	float jump_offset = 0;
+	int swim_speed = 8;
+	bool swimming;
+	int animation_state = 0;
+	float animation_offset = 0;
 	Player(float set_x, float set_y);
-	void move(float dx, float dy);
-	void jump(bool moving, float dx);
+	void updateChunkSubc();
+	void swim(Vector2f movement);
+	void walk(Vector2f movement);
+	void move(Vector2f movement);
+	void walkAnimation(bool moving, float dx);
 };
 extern Player player;
 

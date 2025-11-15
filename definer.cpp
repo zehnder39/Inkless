@@ -15,11 +15,16 @@ void update_surroundings(Vector2i chunk, Vector2i subc)
 			Vector2i nchunk = chunk;
 			nsubc += Vector2i(x, y);
 			Tile* tile = get_tile(nchunk, nsubc);
-			if (tile == nullptr)
+			if (!tile)
 				continue;
 			tile->update();
 		}
 	}
+}
+
+Vector2i chunk_subc_to_pos(Vector2i chunk, Vector2i subc)
+{
+	return Vector2i(tile_size.x * (chunk.x * 16 + subc.x), tile_size.y * (chunk.y * 16 + subc.y));
 }
 
 pair<pair<Vector2i, Vector2i>, bool> inRange(Vector2i chunk, Vector2i subc)
@@ -87,47 +92,64 @@ Player::Player(float set_x, float set_y)
 	position.x = set_x;
 	position.y = set_y;
 }
-void Player::move(float dx, float dy)
+
+void Player::walk(Vector2f movement)
 {
-	if (dx > 0)
-		facing_left = false;
-	else if (dx < 0)
-		facing_left = true;
-	float norm = 1;
-	if (dx != 0 and dy != 0)
-		norm = sqrtf(dx / dx + dy / dy);
-	if (check_move(dx, 0))
-		position.x += dx / norm;
-	if (check_move(0, dy))
-		position.y += dy / norm;
-	chunk = pos_to_chunk_subc(position).first.first;
-	subc = pos_to_chunk_subc(position).first.second;
-	jump(dx != 0 or dy != 0, dx);
+	move(movement);
+	walkAnimation(movement.x != 0 or movement.y != 0, movement.x);
 }
 
-void Player::jump(bool moving, float dx)
+void Player::swim(Vector2f movement)
+{
+	move(movement);
+}
+
+void Player::move(Vector2f movement)
+{
+	if (movement.x > 0)
+		facing_left = false;
+	else if (movement.x < 0)
+		facing_left = true;
+	float norm = 1;
+	if (movement.x != 0 and movement.y != 0)
+		norm = sqrtf(movement.x / movement.x + movement.y / movement.y);
+	if (check_move(movement.x, 0))
+		position.x += movement.x * tile_size.x / (norm * 64);
+	if (check_move(0, movement.y))
+		position.y += movement.y * tile_size.y / (norm * 64);
+	updateChunkSubc();
+}
+
+void Player::walkAnimation(bool moving, float dx)
 {
 	int animation_time = 25;
-	int jump_angle = 30;
-	if (jump_state != 0)
+	int animation_angle = 30;
+	if (animation_state != 0)
 	{	
 		player_model.setTexture(jump_texture);
 		int mod = 1;
 		if (facing_left)
 			mod = -1;
-		player_model.setRotation(degrees(jump_angle * mod * (animation_time - jump_state) * 2 / animation_time));
+		player_model.setRotation(degrees(animation_angle * mod * (animation_time - animation_state) * 2 / animation_time));
 		player_model.setScale({ mod * 2.f, 2.f });
-		jump_offset = 3 * (fabsf(jump_state - animation_time / 2) - animation_time / 2);
-		jump_state--;
+		animation_offset = 3 * (fabsf(animation_state - animation_time / 2) - animation_time / 2);
+		animation_state--;
 	}
-	if (jump_state == 0)
+	if (animation_state == 0)
 	{
 		player_model.setRotation(degrees(0));
 		if (moving)
-			jump_state = animation_time;
-		jump_offset = 0;
+			animation_state = animation_time;
+		animation_offset = 0;
 		player_model.setTexture(player_texture);
 	}
+}
+
+void Player::updateChunkSubc()
+{
+	auto chunkSubc = pos_to_chunk_subc(player.position);
+	chunk = chunkSubc.first.first;
+	subc = chunkSubc.first.second;
 }
 
 Rock::Rock(Vector2i sub, Vector2i chun)
@@ -268,7 +290,14 @@ void Gutter::update()
 
 void Gutter::interact()
 {
-
+	player.swimming = true;
+	Vector2i tile_pos = chunk_subc_to_pos(chunk, subc);
+	player.position = Vector2f(tile_pos.x + tile_size.x / 2, tile_pos.y + tile_size.y / 2);
+	player.updateChunkSubc();
+	swimmingDown = false;
+	swimmingUp = false;
+	swimmingRight = false;
+	swimmingLeft = false;
 }
 
 void Tile::draw()
