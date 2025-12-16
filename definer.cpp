@@ -1,30 +1,26 @@
-#include "header.hpp"
+#include "definer.hpp"
+#include "world.hpp"
+#include "input.hpp"
+#include "window.hpp"
+#include "renderer.hpp"
+
 #include <ctime>
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
 
 
-void update_surroundings(Vector2i chunk, Vector2i subc)
+float dist(Vector2f a, Vector2f b)
 {
-	for (int x = -1; x < 2; x++)
-	{
-		for (int y = -1; y < 2; y++)
-		{
-			Vector2i nsubc = subc;
-			Vector2i nchunk = chunk;
-			nsubc += Vector2i(x, y);
-			Tile* tile = get_tile(nchunk, nsubc);
-			if (!tile)
-				continue;
-			tile->update();
-		}
-	}
+	float dx = a.x - b.x;
+	float dy = a.y - b.y;
+	float distance = sqrt(dx * dx + dy * dy);
+	return distance;
 }
 
-Vector2i chunk_subc_to_pos(Vector2i chunk, Vector2i subc)
+Vector2f chunk_subc_to_pos(Vector2i chunk, Vector2i subc)
 {
-	return Vector2i(tile_size.x * (chunk.x * 16 + subc.x), tile_size.y * (chunk.y * 16 + subc.y));
+	return Vector2f(tile_size.x * (chunk.x * 16 + subc.x), tile_size.y * (chunk.y * 16 + subc.y));
 }
 
 pair<pair<Vector2i, Vector2i>, bool> inRange(Vector2i chunk, Vector2i subc)
@@ -87,258 +83,3 @@ Tile* get_tile(Vector2i chunk, Vector2i subc)
 	return nullptr;
 }
 
-Player::Player(float set_x, float set_y)
-{
-	position.x = set_x;
-	position.y = set_y;
-}
-
-void Player::walk(Vector2f movement)
-{
-	move(movement);
-	walkAnimation(movement.x != 0 or movement.y != 0, movement.x);
-}
-
-void Player::swim(Vector2f movement)
-{
-	move(movement);
-}
-
-void Player::move(Vector2f movement)
-{
-	if (movement.x > 0)
-		facing_left = false;
-	else if (movement.x < 0)
-		facing_left = true;
-	float norm = 1;
-	if (movement.x != 0 and movement.y != 0)
-		norm = sqrtf(movement.x / movement.x + movement.y / movement.y);
-	if (check_move(movement.x, 0))
-		position.x += movement.x * tile_size.x / (norm * 64);
-	if (check_move(0, movement.y))
-		position.y += movement.y * tile_size.y / (norm * 64);
-	updateChunkSubc();
-}
-
-void Player::walkAnimation(bool moving, float dx)
-{
-	int animation_time = 25;
-	int animation_angle = 30;
-	if (animation_state != 0)
-	{	
-		player_model.setTexture(jump_texture);
-		int mod = 1;
-		if (facing_left)
-			mod = -1;
-		player_model.setRotation(degrees(animation_angle * mod * (animation_time - animation_state) * 2 / animation_time));
-		player_model.setScale({ mod * 2.f, 2.f });
-		animation_offset = 3 * (fabsf(animation_state - animation_time / 2) - animation_time / 2);
-		animation_state--;
-	}
-	if (animation_state == 0)
-	{
-		player_model.setRotation(degrees(0));
-		if (moving)
-			animation_state = animation_time;
-		animation_offset = 0;
-		player_model.setTexture(player_texture);
-	}
-}
-
-void Player::updateChunkSubc()
-{
-	auto chunkSubc = pos_to_chunk_subc(player.position);
-	chunk = chunkSubc.first.first;
-	subc = chunkSubc.first.second;
-}
-
-Rock::Rock(Vector2i sub, Vector2i chun)
-{
-	subc = sub;
-	chunk = chun;
-	solid = true;
-	breakable = true;
-	durability = 120;
-	break_offset = 0;
-	texture = rock_texture;
-}
-
-Gutter::Gutter(Vector2i sub, Vector2i chun)
-{
-	subc = sub;
-	chunk = chun;
-	solid = false;
-	breakable = true;
-	durability = 10;
-	break_offset = 0;
-}
-
-void Gutter::update()
-{
-	bool callBreak = false;
-	up = false;
-	down = false;
-	left = false;
-	right = false;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x, subc.y - 1))))
-		up = true;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x, subc.y + 1))))
-		down = true;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x - 1, subc.y))))
-		left = true;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x + 1, subc.y))))
-		right = true;
-	if (!right && !left && !up && !down)
-	{
-		texture = gutter_point_texture;
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-	}
-	if (!right && !left && !up && down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_down_texture;
-	}
-		
-	if (!right && !left && up && !down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_up_texture;
-	}
-		
-	if (!right && !left && up && down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_vertical_texture;
-	}
-		
-	if (!right && left && !up && !down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_left_texture;
-	}
-	if (!right && left && !up && down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_down_left_texture;
-	}
-		
-	if (!right && left && up && !down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_up_left_texture;
-	}
-		
-	if (!right && left && up && down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_branch_vertical_texture;
-	}
-	if (right && !left && !up && !down)
-	{
-		texture = gutter_left_texture;
-		baseScale = Vector2f( - float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f(tile_size.x, 0.f );
-	}
-	if (right && !left && !up && down)
-	{
-		texture = gutter_down_left_texture;
-		baseScale = Vector2f( - float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f(tile_size.x, 0.f );
-	}
-	if (right && !left && up && !down)
-	{
-		texture = gutter_up_left_texture;
-		baseScale = Vector2f( - float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f( tile_size.x, 0.f );
-	}
-	if (right && !left && up && down)
-	{
-		texture = gutter_branch_vertical_texture;
-		baseScale = Vector2f( - float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset =  Vector2f(tile_size.x, 0.f);
-	}
-	if (right && left && !up && !down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_horizontal_texture;
-	}
-	if (right && left && !up && down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_branch_horizontal_texture;
-	}
-	if (right && left && up && !down)
-	{
-		baseScale = Vector2f( float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = gutter_branch_horizontal_down_texture;
-	}
-	if (right && left && up && down)
-		delete_tile(get_tile(chunk, subc));
-
-}
-
-void Gutter::interact()
-{
-	player.swimming = true;
-	Vector2i tile_pos = chunk_subc_to_pos(chunk, subc);
-	player.position = Vector2f(tile_pos.x + tile_size.x / 2, tile_pos.y + tile_size.y / 2);
-	player.updateChunkSubc();
-	swimmingDown = false;
-	swimmingUp = false;
-	swimmingRight = false;
-	swimmingLeft = false;
-}
-
-void Tile::draw()
-{
-	Sprite sprite(texture);
-	sprite.setPosition(Vector2f( tile_size.x * (chunk.x * 16 + subc.x) + break_offset + baseOffset.x, tile_size.y * (chunk.y * 16 + subc.y) + baseOffset.y ));
-	sprite.scale(Vector2f( 2.f * baseScale.x, 2.f * baseScale.y ));
-	window->draw(sprite);
-}
-
-Chunk::Chunk(Vector2i poss)
-{
-	position = poss;
-	ground.setSize(Vector2f( 16 * tile_size.x, 16 * tile_size.y));
-	ground.setPosition(Vector2f((tile_size.x * 16) * position.x, (tile_size.y * 16) * position.y));
-	ground.setTexture(&ground_texture);
-	ground.setTextureRect(IntRect({ 0, 0 }, { 384, 512 }));
-}
-vector<Tile*> Chunk::list_tiles()
-{
-	vector<Tile*> in_chunk;
-	for (int x = 0; x < 16; x ++)
-	{
-		for (int y = 0; y < 16; y++)
-		{
-			if (changeables[x][y] != nullptr)
-				in_chunk.push_back(changeables[x][y].get());
-		}
-	}
-	return in_chunk;
-}
-
-void Chunk::rockdom()
-{
-	for (int x = 0; x < 16; x++)
-	{
-		for (int y = 0; y < 16; y++)
-		{
-			int num = rand() % 8;
-			if (num == 0)
-				changeables[x][y] = make_unique<Rock>(Vector2i(x,y), Vector2i(position.x, position.y));
-		}
-	}
-}

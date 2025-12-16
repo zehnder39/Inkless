@@ -33,9 +33,33 @@
     <ClCompile Include="definer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="saves.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header.hpp">
+    <ClInclude Include="definer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="world.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="input.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physics.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="saves.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,6 +119,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="gutter_branch_horizontal_down.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="debug_ground.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

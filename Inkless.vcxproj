@@ -77,7 +77,7 @@
       <PreprocessorDefinitions>SFML_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>.\SFML-3.0.1-vc\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SFML-3.0.1-vc\include;.\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\ELITEBOOK\Desktop\codage\languages\sfml\lib\SFML-3.0.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SFML-3.0.1-vc\include;.\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,7 +109,7 @@
       <PreprocessorDefinitions>SFML_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>.\SFML-3.0.1-vc\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SFML-3.0.1-vc\include;.\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>SFML_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\ELITEBOOK\Desktop\codage\languages\sfml\lib\SFML-3.0.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\SFML-3.0.1-vc\include;.\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,10 +145,18 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="saves.cpp" />
+    <ClCompile Include="window.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="header.hpp" />
+    <ClInclude Include="definer.hpp" />
+    <ClInclude Include="input.hpp" />
+    <ClInclude Include="physics.hpp" />
+    <ClInclude Include="renderer.hpp" />
+    <ClInclude Include="saves.hpp" />
+    <ClInclude Include="window.hpp" />
+    <ClInclude Include="world.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ground.png" />
@@ -166,6 +174,7 @@
     <Image Include="gutter_point.png" />
     <Image Include="gutter_up.png" />
     <Image Include="gutter_vertical.png" />
+    <Image Include="debug_ground.png" />
     <Image Include="rock.png" />
     <Image Include="rock2.png" />
     <Image Include="squid_player.png" />

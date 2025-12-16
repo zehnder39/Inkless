@@ -3,8 +3,14 @@
 #include <iostream>
 #include <cmath>
 
-#include "header.hpp"
+#include "renderer.hpp"
+#include "definer.hpp"
+#include "input.hpp"
+#include "window.hpp"
+#include "world.hpp"
+#include "physics.hpp"
 
+//flags
 bool looking_up, looking_down, looking_right, looking_left;
 bool moving_left, moving_right, moving_up, moving_down;
 bool facing_left, facing_up, should_close, mouse_1, mouse_2, use_key, debug_key;
@@ -106,4 +112,17 @@ void input()
 {
     key_input();
     mouse_input();
+}
+
+void Gutter::interact()
+{
+    player.swimming = true;
+    Vector2f tile_pos = chunk_subc_to_pos(chunk, subc);
+    player.position = Vector2f(tile_pos.x + center.x, tile_pos.y + center.y);
+    player.updateChunkSubc();
+    swimmingPath = make_pair(player.position, player.position);
+    swimmingAdvDown = false;
+    swimmingAdvLeft = false;
+    swimmingAdvRight = false;
+    swimmingAdvUp = false;
 }
