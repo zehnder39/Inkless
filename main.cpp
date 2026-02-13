@@ -9,12 +9,15 @@
 #include "saves.hpp"
 #include "window.hpp"
 
+double accumulatedTime = 0.0;
+const double timePerTick = 1000 / 60; //60 tps
 
 int main()
 {
     using std::chrono::high_resolution_clock;
     using std::chrono::duration;
     using std::chrono::milliseconds;
+    auto nowTime = std::chrono::high_resolution_clock::now();
 
     window = new RenderWindow(VideoMode({ 1920, 1080 }), "Inkless", State::Fullscreen);
     window->setVerticalSyncEnabled(true);
@@ -22,7 +25,7 @@ int main()
 
     create_instance();
     load_textures();
-	createTypeMenuScreens();
+	createMenus();
     while (window->isOpen())
     {
         input();
@@ -37,21 +40,31 @@ int main()
 			break;
 
         case GameState::WorldLoading:
+			worldLoadingScreen.update();
             break;
 
         case GameState::InGame:
-            auto timeStart = high_resolution_clock::now();
-            playerMovement();
-            check_action();
-            update_world();
-            duration<double, std::milli> calculationTime = high_resolution_clock::now() - timeStart;
+            if (escapeKey)
+                gamePaused = !gamePaused;
+
+            duration<double, std::milli> calculationTime = high_resolution_clock::now() - nowTime;
+            nowTime = high_resolution_clock::now();
+            accumulatedTime += calculationTime.count();
+
+            if (gamePaused)
+                accumulatedTime = 0;
+
+            while (accumulatedTime >= timePerTick)
+            {
+                playerMovement();
+                check_action();
+                update_world();
+				accumulatedTime -= timePerTick;
+            }
             render();
-            debug_info.push_back("MSPT: " + to_string(calculationTime.count()));
-            int uncaped_tps = 1000 / calculationTime.count();
-            debug_info.push_back("TPS: " + to_string(uncaped_tps));
             break;
         }
-        if (should_close)
+        if (shouldClose)
             window->close();
 
     }

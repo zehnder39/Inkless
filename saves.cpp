@@ -5,6 +5,8 @@
 #include "world.hpp"
 #include "window.hpp"
 
+#include <nlohmann/json.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -55,6 +57,9 @@ void from_json(const nlohmann::json& j, Chunk& c)
     c.position.x = j.at("position")[0];
     c.position.y = j.at("position")[1];
 
+    c.ground.setPosition(Vector2f((tile_size.x * 16) * c.position.x, (tile_size.y * 16) * c.position.y));
+    c.debugGround.setPosition(Vector2f((tile_size.x * 16) * c.position.x, (tile_size.y * 16) * c.position.y));
+
     const auto& grid = j.at("tiles");
 
     for (int y = 0; y < 16; y++) {
@@ -68,41 +73,55 @@ void from_json(const nlohmann::json& j, Chunk& c)
             }
 
             std::string type = cell.at("type");
-            auto ptr = make_tile(type);
-            ptr->from_json(cell);
 
-            c.changeables[y][x] = std::move(ptr);
+            c.changeables[y][x] = make_tile(type);
+			c.changeables[y][x]->from_json(cell);
         }
     }
 }
 
-// for vector<vector<Chunk>>
-template<typename T>
-void to_json(nlohmann::json& j, const std::vector<T>& vec)
-{
-    j = nlohmann::json::array();
-    for (const auto& v : vec)
-        j.push_back(v);
+namespace sf{
+    void to_json(nlohmann::json& j, const Vector2f& v)
+    {
+        j = { {"x", v.x}, {"y", v.y}};
+    }
+
+    void from_json(const nlohmann::json& j, sf::Vector2f& v)
+    {
+        v.x = j.at("x").get<float>();
+        v.y = j.at("y").get<float>();
+    }
 }
 
-template<typename T>
-void from_json(const nlohmann::json& j, std::vector<T>& vec)
+void to_json(nlohmann::json& j, const WorldSave& w)
 {
-    vec.clear();
-    for (const auto& v : j)
-    {
-        T value;
-        from_json(v, value);
-        vec.push_back(std::move(value));
-    }
+    j = nlohmann::json{
+        {"player", {
+            {"x", w.playerPosition.x},
+            {"y", w.playerPosition.y}
+        }},
+        {"chunks", w.chunks}
+    };
+}
+
+void from_json(const nlohmann::json& j, WorldSave& w)
+{
+    w.playerPosition = j.at("player").get<sf::Vector2f>();
+    j.at("chunks").get_to(w.chunks);  // best option
 }
 
 void save_world()
 {
     try {
-        nlohmann::json j = world_chunks; // automatic serialization
+        WorldSave save;
+        save.chunks = std::move(world_chunks);   // move instead of copy
+        save.playerPosition = player.position;
 
-        ofstream file(world_name + ".json");
+        nlohmann::json j = save;
+
+        world_chunks = std::move(save.chunks);
+
+        ofstream file("saves/" + world_name + ".json"s);
         if (!file) {
             cerr << "Error opening file for writing: " << world_name << endl;
             return;
@@ -122,17 +141,22 @@ void load_world()
 {
     try
     {
-        ifstream file(world_name + ".json");
+        ifstream file("saves/" + world_name + ".json"s);
         if (!file) {
             cerr << "Error opening file for reading: " << world_name << endl;
             return;
         }
 
+
         nlohmann::json j;
         file >> j;
 
-        from_json(j, world_chunks);
-        cout << "World loaded from " << world_name << endl; // corrected variable in output
+		world_chunks.clear();
+
+        WorldSave save = j.get<WorldSave>();
+        world_chunks = std::move(save.chunks);
+        player.position = save.playerPosition;
+        player_model.setOrigin({ 16.f, 16.f });
     }
     catch (const exception& e) {
         cerr << "Exception while loading world: " << e.what() << endl;

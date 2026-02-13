@@ -8,6 +8,9 @@
 using namespace std;
 using namespace sf;
 
+//flags
+extern bool gamePaused;
+
 extern pair<Vector2f, Vector2f> swimmingPath;
 
 void playerMovement();

@@ -10,8 +10,8 @@ bool swimmingAdvUp, swimmingAdvDown, swimmingAdvLeft, swimmingAdvRight;
 
 pair<Vector2f, Vector2f> swimmingPath ;
 
-
-
+//flags
+bool gamePaused = false;
 
 
 
@@ -247,8 +247,15 @@ bool check_move(float dx, float dy)
 void check_action()
 {
 	if (use_key)
+	{
+		if (player.swimming)
+		{
+			player.swimming = false;
+			return;
+		}
+
 		tile_interaction();
-	
+	}
 }
 
 void playerMovement()

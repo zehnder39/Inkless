@@ -4,17 +4,24 @@
 #include <SFML/Window.hpp>
 #include <SFML/Window/Event.hpp>
 #include <functional>
+#include <iostream>
+#include <filesystem>
 #include "renderer.hpp"
+
 
 using namespace std;
 using namespace sf;
+namespace fs = std::filesystem;
+
+//flags
+extern bool shouldClose;
 
 //gui colors
 extern Color baseButtonColor;
 extern Color baseHoveredColor;
 extern Color basePlaceholderTextColor;
 
-
+//textures ect.
 extern Sprite player_model;
 extern Texture ground_texture, debugGroundTexture;
 extern Texture rock_texture;
@@ -26,7 +33,7 @@ extern RenderWindow* window;
 
 void create_instance();
 void load_textures();
-void createTypeMenuScreens();
+void createMenus();
 
 enum class GameState
 {
@@ -45,6 +52,7 @@ struct Button
 	RectangleShape box;
 	Color buttonColor = baseButtonColor;
 	Color hoveredColor = baseHoveredColor;
+	Vector2f localCenterOffset;
 
 	bool checkOnBox();
 	void draw();
@@ -52,6 +60,7 @@ struct Button
 	Button();
 	Button(Text txt, float x, float y);
 	Button(Text txt, Vector2f xy);
+	void setGlobalPosition();
 };
 
 struct TextBox
@@ -60,11 +69,16 @@ struct TextBox
 	RectangleShape box;
 	Color boxColor;
 	string text;
+	Vector2f localCenterOffset;
+
 	bool onlyInt = false;
 	bool selected = false;
 
+
 	bool checkOnBox();
 	void draw();
+	void write();
+	void setGlobalPosition();
 
 	TextBox();
 	TextBox(float x, float y, string placeholderTxt, int charSize);
@@ -85,3 +99,18 @@ struct TypeMenuScreen
 
 extern TypeMenuScreen titleScreen;
 extern TypeMenuScreen worldCreationScreen;
+extern TypeMenuScreen worldLoadingScreen;
+
+struct TypeScreenLockedMenu
+{
+	string title = "Paused";
+	vector<Button> buttons;
+	vector<TextBox> textBoxes;
+	Vector2f position;
+	void draw();
+	void update();
+
+	TypeScreenLockedMenu() = default;
+	TypeScreenLockedMenu(string tit) : title(tit) {}
+};
+extern TypeScreenLockedMenu pauseMenu;

@@ -6,7 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <SFML/Graphics.hpp>
-#include <nlohmann/json.hpp>
+#include <SFML/System/Vector2.hpp>
 #include "world.hpp"
 
 using namespace std;
@@ -19,5 +19,15 @@ unique_ptr<Tile> make_tile(const string& type);
 void to_json(nlohmann::json& j, const Chunk& c);
 void from_json(const nlohmann::json& j, Chunk& c);
 
-void load_world(const string& filename);
-void save_world(const string& filename);
+void to_json(nlohmann::json& j, const sf::Vector2f& v);
+
+void from_json(const nlohmann::json& j, sf::Vector2f& v);
+
+struct WorldSave
+{
+	vector<vector<Chunk>> chunks;
+	Vector2f playerPosition;
+};
+
+void load_world();
+void save_world();

@@ -221,6 +221,7 @@ void Gutter::update()
 	if (!right && !left && !up && !down)
 	{
 		texture = gutter_point_texture;
+		textureName = "gutter_point_texture";
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
@@ -230,6 +231,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_down_texture;
+		textureName = "gutter_down_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
 	}
 
@@ -238,6 +240,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_up_texture;
+		textureName = "gutter_up_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
 	}
 
@@ -246,6 +249,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_vertical_texture;
+		textureName = "gutter_vertical_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
 	}
 
@@ -254,6 +258,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_left_texture;
+		textureName = "gutter_left_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
 	}
 	if (!right && left && !up && down)
@@ -261,6 +266,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_down_left_texture;
+		textureName = "gutter_down_left_texture";
 		center = Vector2f(tile_size.x / 4, tile_size.y * 3 / 4);
 	}
 
@@ -269,6 +275,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_up_left_texture;
+		textureName = "gutter_up_left_texture";
 		center = Vector2f(tile_size.x / 4, tile_size.y / 4);
 	}
 
@@ -277,11 +284,13 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_branch_vertical_texture;
+		textureName = "gutter_branch_vertical_texture";
 		center = Vector2f(tile_size.x / 6, tile_size.y / 2);
 	}
 	if (right && !left && !up && !down)
 	{
 		texture = gutter_left_texture;
+		textureName = "gutter_left_texture";
 		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = Vector2f(tile_size.x, 0.f);
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
@@ -289,6 +298,7 @@ void Gutter::update()
 	if (right && !left && !up && down)
 	{
 		texture = gutter_down_left_texture;
+		textureName = "gutter_down_left_texture";
 		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = Vector2f(tile_size.x, 0.f);
 		center = Vector2f(tile_size.x * 3 / 4, tile_size.y * 3 / 4);
@@ -296,6 +306,7 @@ void Gutter::update()
 	if (right && !left && up && !down)
 	{
 		texture = gutter_up_left_texture;
+		textureName = "gutter_up_left_texture";
 		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = Vector2f(tile_size.x, 0.f);
 		center = Vector2f(tile_size.x * 3 / 4, tile_size.y / 4);
@@ -303,6 +314,7 @@ void Gutter::update()
 	if (right && !left && up && down)
 	{
 		texture = gutter_branch_vertical_texture;
+		textureName = "gutter_branch_vertical_texture";
 		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = Vector2f(tile_size.x, 0.f);
 		center = Vector2f(tile_size.x * 5 / 6, tile_size.y / 2);
@@ -312,6 +324,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_horizontal_texture;
+		textureName = "gutter_horizontal_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
 	}
 	if (right && left && !up && down)
@@ -319,6 +332,7 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_branch_horizontal_texture;
+		textureName = "gutter_branch_horizontal_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y * 5 / 6);
 	}
 	if (right && left && up && !down)
@@ -326,11 +340,40 @@ void Gutter::update()
 		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
 		baseOffset = { 0.f, 0.f };
 		texture = gutter_branch_horizontal_down_texture;
+		textureName = "gutter_branch_horizontal_down_texture";
 		center = Vector2f(tile_size.x / 2, tile_size.y / 6);
 	}
 	if (right && left && up && down)
 		delete_tile(get_tile(chunk, subc));
 
+}
+
+void Gutter::setTextureByName()
+{
+	if (textureName == "gutter_point_texture")
+		texture = gutter_point_texture;
+	else if (textureName == "gutter_horizontal_texture")
+		texture = gutter_horizontal_texture;
+	else if (textureName == "gutter_vertical_texture")
+		texture = gutter_vertical_texture;
+	else if (textureName == "gutter_up_left_texture")
+		texture = gutter_up_left_texture;
+	else if (textureName == "gutter_down_left_texture")
+		texture = gutter_down_left_texture;
+	else if (textureName == "gutter_branch_horizontal_texture")
+		texture = gutter_branch_horizontal_texture;
+	else if (textureName == "gutter_branch_horizontal_down_texture")
+		texture = gutter_branch_horizontal_down_texture;
+	else if (textureName == "gutter_branch_vertical_texture")
+		texture = gutter_branch_vertical_texture;
+	else if (textureName == "gutter_up_texture")
+		texture = gutter_up_texture;
+	else if (textureName == "gutter_down_texture")
+		texture = gutter_down_texture;
+	else if (textureName == "gutter_left_texture")
+		texture = gutter_left_texture;
+	else
+		cerr << "Error: Invalid texture name for Gutter: " << textureName << endl;
 }
 
 Chunk::Chunk()

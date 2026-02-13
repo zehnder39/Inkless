@@ -104,8 +104,11 @@ public:
 	bool left;
 	bool right;
 	Vector2f center;
+	string textureName;
+
 	void interact() override;
 	void update() override;
+	void setTextureByName();
 	explicit Gutter();
 	explicit Gutter(Vector2i sub, Vector2i chun);
 
@@ -123,6 +126,9 @@ public:
 		j["center"] = { center.x, center.y };
 		j["sub"] = { subc.x, subc.y };
 		j["chunk"] = { chunk.x, chunk.y };
+		j["baseScale"] = { baseScale.x, baseScale.y };
+		j["baseOffset"] = { baseOffset.x, baseOffset.y };
+		j["texture"] = textureName;
 	}
 
 	void from_json(const nlohmann::json& j) override {
@@ -133,6 +139,10 @@ public:
 		center = { j.at("center")[0], j.at("center")[1] };
 		subc = { j.at("sub")[0], j.at("sub")[1] };
 		chunk = { j.at("chunk")[0], j.at("chunk")[1] };
+		baseScale = { j.at("baseScale")[0], j.at("baseScale")[1] };
+		baseOffset = { j.at("baseOffset")[0], j.at("baseOffset")[1] };
+		textureName = j.at("texture");
+		setTextureByName();
 	}
 };
 
@@ -151,5 +161,11 @@ public:
 
 	Chunk();
 	Chunk(Vector2i pos);
+
+	Chunk(const Chunk&) = delete;
+	Chunk& operator=(const Chunk&) = delete;
+
+	Chunk(Chunk&&) = default;
+	Chunk& operator=(Chunk&&) = default;
 };
 extern vector<vector<Chunk>> world_chunks;

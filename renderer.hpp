@@ -16,4 +16,4 @@ extern Vector2f view_offset;
 extern Font font;
 
 
-void render();
+extern void render();

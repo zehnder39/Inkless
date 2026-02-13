@@ -13,17 +13,18 @@
 //flags
 bool looking_up, looking_down, looking_right, looking_left;
 bool moving_left, moving_right, moving_up, moving_down;
-bool facing_left, facing_up, should_close, mouse_1, mouse_2, use_key, debug_key;
+bool facing_left, facing_up, escapeKey, mouse_1, mouse_2, use_key, debug_key;
 
 Vector2i mouse_pos;
 Vector2f mouse_vector;
 
 void key_input()
 {
+    escapeKey = false;
     while (const optional event = window->pollEvent())
     {
         if (event->is<Event::Closed>())
-            should_close = true;
+            shouldClose = true;
         if (const auto* key = event->getIf<Event::KeyPressed>())
         {
             switch (key->code)
@@ -41,7 +42,7 @@ void key_input()
                 moving_down = true;
                 break;
             case Keyboard::Key::Escape:
-                should_close = true;
+                escapeKey = true;
                 break;
             case Keyboard::Key::E:
                 use_key = true;
@@ -95,7 +96,10 @@ void get_mouse_look()
 
 void mouse_input()
 {
-    mouse_pos = Vector2i(Mouse::getPosition(*window).x + view_offset.x - window->getSize().x / 2, Mouse::getPosition(*window).y + view_offset.y - window->getSize().y / 2);
+    if (currentState == GameState::InGame)
+        mouse_pos = Vector2i(Mouse::getPosition(*window).x + view_offset.x - window->getSize().x / 2, Mouse::getPosition(*window).y + view_offset.y - window->getSize().y / 2);
+    else
+		mouse_pos = Vector2i(Mouse::getPosition(*window).x, Mouse::getPosition(*window).y);
     if (Mouse::isButtonPressed(Mouse::Button::Left))
         mouse_1 = true;
     else

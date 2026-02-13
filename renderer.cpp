@@ -6,6 +6,7 @@
 #include "world.hpp"
 #include "input.hpp"
 #include "window.hpp"
+#include "physics.hpp"
 
 vector<CircleShape> debug_draw;
 vector<string> debug_text, debug_info;
@@ -27,18 +28,21 @@ bool debug_visual = false;
 
 void set_view_offset()
 {
-    Vector2i window_size = Vector2i(window->getSize().x, window->getSize().y);
+    Vector2i window_size = Vector2i(window->getSize());
     view_offset = Vector2f(window_size.x / 2, window_size.y / 2);
+
     if (player.position.x > window_size.x / 2 and player.position.x < world_chunks.size() * (tile_size.x * 16) - window_size.x / 2)
         view_offset.x = player.position.x;
     else if (player.position.x > world_chunks.size() * (tile_size.x * 16) - window_size.x / 2)
         view_offset.x = world_chunks.size() * (tile_size.x * 16) - window_size.x / 2;
+
     if (player.position.y > window_size.y / 2 and player.position.y < world_chunks[0].size() * (tile_size.y * 16) - window_size.y / 2)
         view_offset.y = player.position.y;
     else if (player.position.y > world_chunks[0].size() * (tile_size.y * 16) - window_size.y / 2)
         view_offset.y = world_chunks[0].size() * (tile_size.y * 16) - window_size.y / 2;
-    window->setView(View({ view_offset.x, view_offset.y}, Vector2f(window_size.x, window_size.y)));
-	debug_text.push_back("Player offest: " + to_string(view_offset.x) + ", " + to_string(view_offset.y));
+    window->setView(View({ view_offset.x, view_offset.y }, Vector2f(window_size)));
+
+	debug_text.push_back("Player offset: " + to_string(view_offset.x) + ", " + to_string(view_offset.y));
     player_local_pos = { player.position.x - view_offset.x + window_size.x / 2, player.position.y - view_offset.y + window_size.y / 2 };
 }
 
@@ -127,6 +131,18 @@ void render_debug()
     debug_info.clear();
 }
 
+void renderMenus()
+{
+    if (gamePaused)
+    {
+        RectangleShape overlay(Vector2f(window->getSize()));
+        overlay.setFillColor(Color(0, 0, 0, 150));
+		overlay.setPosition(window->getView().getCenter() - Vector2f(window->getSize().x / 2, window->getSize().y / 2));
+        window->draw(overlay);
+        pauseMenu.update();
+    }
+}
+
 void render()
 {
     window->clear();
@@ -140,6 +156,7 @@ void render()
     render_entities();
     render_player();
     render_debug();
+    renderMenus();
     window->display();
 }
 
