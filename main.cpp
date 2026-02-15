@@ -21,7 +21,7 @@ int main()
 
     window = new RenderWindow(VideoMode({ 1920, 1080 }), "Inkless", State::Fullscreen);
     window->setVerticalSyncEnabled(true);
-	//window->setFramerateLimit(4);
+	window->setFramerateLimit(6);
 
     create_instance();
     load_textures();
@@ -45,7 +45,11 @@ int main()
 
         case GameState::InGame:
             if (escapeKey)
+            {
                 gamePaused = !gamePaused;
+				debug_info.push_back("Toggled pause, gamePaused: " + to_string(gamePaused));
+                escapeKey = false;
+            }
 
             duration<double, std::milli> calculationTime = high_resolution_clock::now() - nowTime;
             nowTime = high_resolution_clock::now();
@@ -61,8 +65,13 @@ int main()
                 update_world();
 				accumulatedTime -= timePerTick;
             }
+
+			debug_info.push_back("Game paused: " + to_string(gamePaused));
+			debug_info.push_back("Escape Key: " + to_string(escapeKey));
+
             render();
             break;
+
         }
         if (shouldClose)
             window->close();

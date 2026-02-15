@@ -17,6 +17,8 @@ extern CircleShape entity1;
 extern RectangleShape ground;
 extern vector<CircleShape> entities;
 extern Vector2i tile_size;
+extern int chunkSize;
+extern Vector2i worldSize;
 
 void create_world(string name, int seed);
 void update_world();
@@ -148,7 +150,7 @@ public:
 
 void delete_tile(Tile* tile);
 extern Tile* breaking_mem;
-Tile* get_tile(Vector2i chunk, Vector2i subc);
+Tile* getTile(Vector2i chunk, Vector2i subc);
 class Chunk
 {
 public:

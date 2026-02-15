@@ -14,13 +14,14 @@
 bool looking_up, looking_down, looking_right, looking_left;
 bool moving_left, moving_right, moving_up, moving_down;
 bool facing_left, facing_up, escapeKey, mouse_1, mouse_2, use_key, debug_key;
+vector<Event::KeyPressed> keyPressedLastFrame;
 
 Vector2i mouse_pos;
 Vector2f mouse_vector;
 
+
 void key_input()
 {
-    escapeKey = false;
     while (const optional event = window->pollEvent())
     {
         if (event->is<Event::Closed>())
@@ -68,11 +69,20 @@ void key_input()
             case Keyboard::Key::S:
                 moving_down = false;
                 break;
+            case Keyboard::Key::Escape:
+                escapeKey = false;
+                break;
             case Keyboard::Key::E:
                 use_key = false;
+                break;
+            case Keyboard::Key::T:
+                debug_key = false;
+                break;
             }
         }
     }
+
+    
 }
 
 void get_mouse_look()
@@ -121,7 +131,7 @@ void input()
 void Gutter::interact()
 {
     player.swimming = true;
-    Vector2f tile_pos = chunk_subc_to_pos(chunk, subc);
+    Vector2f tile_pos = chunkSubcToPos(chunk, subc);
     player.position = Vector2f(tile_pos.x + center.x, tile_pos.y + center.y);
     player.updateChunkSubc();
     swimmingPath = make_pair(player.position, player.position);

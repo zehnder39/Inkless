@@ -18,7 +18,7 @@ float dist(Vector2f a, Vector2f b)
 	return distance;
 }
 
-Vector2f chunk_subc_to_pos(Vector2i chunk, Vector2i subc)
+Vector2f chunkSubcToPos(Vector2i chunk, Vector2i subc)
 {
 	return Vector2f(tile_size.x * (chunk.x * 16 + subc.x), tile_size.y * (chunk.y * 16 + subc.y));
 }
@@ -54,7 +54,7 @@ pair<pair<Vector2i, Vector2i>, bool> inRange(Vector2i chunk, Vector2i subc)
 	return make_pair(make_pair(nchunk, nsubc), true);
 }
 
-pair<pair<Vector2i, Vector2i>, bool> tile_looking_at()
+pair<pair<Vector2i, Vector2i>, bool> tileLookingAt()
 {
 	float angle = - atan2(mouse_vector.y, mouse_vector.x);
 	float vector_norm = sqrt(((mouse_vector.x * mouse_vector.x) / (tile_size.x * tile_size.x))+ ((mouse_vector.y * mouse_vector.y) / (tile_size.y * tile_size.y)));
@@ -72,7 +72,7 @@ pair<pair<Vector2i, Vector2i>, bool> pos_to_chunk_subc(Vector2f pos)
 	return inRange(chunk, subc);
 }
 
-Tile* get_tile(Vector2i chunk, Vector2i subc)
+Tile* getTile(Vector2i chunk, Vector2i subc)
 {
 	auto chunk_subc = inRange(chunk, subc);
 	if (chunk_subc.second)

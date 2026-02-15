@@ -32,7 +32,7 @@ pair<Tile*, bool> nextSwimmingTile()
 	else
 		delta = { 0, 0 };
 	auto chunk_subc = pos_to_chunk_subc(player.position + delta);
-	auto tile = get_tile(chunk_subc.first.first, chunk_subc.first.second);
+	auto tile = getTile(chunk_subc.first.first, chunk_subc.first.second);
 	bool gut = dynamic_cast<Gutter*>(tile);
 	return make_pair(tile, gut);
 
@@ -50,7 +50,7 @@ void updateSwimmingPath(Gutter *gutter)
 		return;
 	}
 	auto mem = swimmingPath.first;
-	Vector2f gutterPos = chunk_subc_to_pos(gutter->chunk, gutter->subc);
+	Vector2f gutterPos = chunkSubcToPos(gutter->chunk, gutter->subc);
 
 	auto next = nextSwimmingTile();
 	if (!next.second)
@@ -65,7 +65,7 @@ void updateSwimmingPath(Gutter *gutter)
 	}
 
 	Gutter* nextGutter = dynamic_cast<Gutter*>(next.first);
-	gutterPos = chunk_subc_to_pos(nextGutter->chunk, nextGutter->subc);
+	gutterPos = chunkSubcToPos(nextGutter->chunk, nextGutter->subc);
 	if (swimmingPath.first == nextGutter->center + gutterPos) //player at centre of tile
 	{
 		int numberDir = 0;
@@ -118,9 +118,9 @@ void tile_interaction()
 	auto mouse_tile = pos_to_chunk_subc(Vector2f(mouse_pos));
 	if (!mouse_tile.second)
 		return;
-	if (mouse_tile.first == tile_looking_at().first)
+	if (mouse_tile.first == tileLookingAt().first)
 	{
-		Tile* tile = get_tile(mouse_tile.first.first, mouse_tile.first.second);
+		Tile* tile = getTile(mouse_tile.first.first, mouse_tile.first.second);
 		if (tile)
 			tile->interact();
 	}
@@ -171,7 +171,7 @@ void playerSwim()
 	debug_text.push_back("Swimming left advantage: " + to_string(swimmingAdvLeft));
 	debug_text.push_back("Swimming up advantage: " + to_string(swimmingAdvUp));
 	debug_text.push_back("Swimming down advantage: " + to_string(swimmingAdvDown));
-	Tile* tile = get_tile(player.chunk, player.subc);
+	Tile* tile = getTile(player.chunk, player.subc);
 	if (auto* gutter = dynamic_cast<Gutter*>(tile))
 	{
 		Vector2f speed;

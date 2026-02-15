@@ -12,7 +12,9 @@
 #include "saves.hpp"
 
 Vector2i tile_size = {64, 48};
+int chunkSize = 16;
 vector<vector<Chunk>> world_chunks;
+Vector2i worldSize = { 3, 3 };
 
 void create_world(string world_nam, int seed)
 {
@@ -21,9 +23,9 @@ void create_world(string world_nam, int seed)
 	player_model.setOrigin({ 16.f, 16.f });
 	entity1.setFillColor(Color::Green);
 	entities.push_back(entity1);
-	for (int x = 0; x < 3; x++)
+	for (int x = 0; x < worldSize.x; x++)
 	{
-		for (int y = 0; y < 3; y++)
+		for (int y = 0; y < worldSize.y; y++)
 		{
 			Chunk c({ x ,y });
 			if (int(world_chunks.size()) <= x)
@@ -46,7 +48,7 @@ void delete_tile(Tile* tile)
 	update_surroundings(chunk, subc);
 }
 
-bool check_breaking()
+bool breakingTile()
 {
 	if (mouse_1)
 	{
@@ -64,9 +66,9 @@ bool check_breaking()
 			dy = tile_size.y;
 		else
 			dy = 0;
-		Vector2i chunk_poss = tile_looking_at().first.first;
-		Vector2i subc = tile_looking_at().first.second;
-		if (tile_looking_at().second)
+		Vector2i chunk_poss = tileLookingAt().first.first;
+		Vector2i subc = tileLookingAt().first.second;
+		if (tileLookingAt().second)
 		{
 			Chunk& chunk = world_chunks[chunk_poss.x][chunk_poss.y];
 			Tile* tile = chunk.changeables[subc.x][subc.y].get();
@@ -103,15 +105,15 @@ bool check_breaking()
 
 void place_gutter()
 {
-	Vector2i chunk = tile_looking_at().first.first;
-	Vector2i subc = tile_looking_at().first.second;
-	if (tile_looking_at().second)
+	Vector2i chunk = tileLookingAt().first.first;
+	Vector2i subc = tileLookingAt().first.second;
+	if (tileLookingAt().second)
 	{
 		CircleShape cir(30.f);
 		cir.setFillColor(Color::Blue);
 		cir.setPosition(Vector2f(chunk.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk.y * (tile_size.y * 16) + subc.y * tile_size.y));
 		debug_draw.push_back(cir);
-		if (!get_tile(chunk, subc))
+		if (!getTile(chunk, subc))
 		{
 			world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y] = make_unique<Gutter>(Vector2i(subc.x, subc.y), Vector2i(chunk.x, chunk.y));
 			auto& slot = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
@@ -130,7 +132,7 @@ void update_surroundings(Vector2i chunk, Vector2i subc)
 			Vector2i nsubc = subc;
 			Vector2i nchunk = chunk;
 			nsubc += Vector2i(x, y);
-			Tile* tile = get_tile(nchunk, nsubc);
+			Tile* tile = getTile(nchunk, nsubc);
 			if (!tile)
 				continue;
 			tile->update();
@@ -140,7 +142,7 @@ void update_surroundings(Vector2i chunk, Vector2i subc)
 
 void update_world()
 {
-	if (!check_breaking())
+	if (!breakingTile())
 		break_time = 0;
 	else
 		break_time++;
@@ -210,13 +212,13 @@ void Gutter::update()
 	down = false;
 	left = false;
 	right = false;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x, subc.y - 1))))
+	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x, subc.y - 1))))
 		up = true;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x, subc.y + 1))))
+	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x, subc.y + 1))))
 		down = true;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x - 1, subc.y))))
+	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x - 1, subc.y))))
 		left = true;
-	if (auto* a = dynamic_cast<Gutter*>(get_tile(chunk, Vector2i(subc.x + 1, subc.y))))
+	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x + 1, subc.y))))
 		right = true;
 	if (!right && !left && !up && !down)
 	{
@@ -344,7 +346,7 @@ void Gutter::update()
 		center = Vector2f(tile_size.x / 2, tile_size.y / 6);
 	}
 	if (right && left && up && down)
-		delete_tile(get_tile(chunk, subc));
+		delete_tile(getTile(chunk, subc));
 
 }
 

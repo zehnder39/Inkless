@@ -50,7 +50,7 @@ void render_player()
 {
     player_model.setPosition({ player.position.x, player.position.y + player.animation_offset });
     window->draw(player_model);
-    Tile* tile_below = get_tile(player.chunk, { player.subc.x, player.subc.y + 1 });
+    Tile* tile_below = getTile(player.chunk, { player.subc.x, player.subc.y + 1 });
     if (tile_below == nullptr)
         return;
     if (!tile_below->solid)
@@ -116,7 +116,7 @@ void render_debug()
         }
         for (int i = 0; i < int(debug_info.size()); i++)
         {
-            float pos_x = view_offset.x + (window->getSize().x / 2) - (debug_info[i].length() * txt_size / 2);
+            float pos_x = view_offset.x + (window->getSize().x / 2) - (debug_info[i].length() * txt_size * 3 / 4);
             float pos_y = view_offset.y - (window->getSize().y / 2) + (i * txt_size);
             Text txt(font);
             txt.setString(debug_info[i]);

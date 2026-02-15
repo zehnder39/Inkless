@@ -248,6 +248,7 @@ void TypeMenuScreen::update()
     if (escapeKey)
     {
 		currentState = GameState::TitleScreen;
+		escapeKey = false;
 	}
 
 	draw();
@@ -395,7 +396,7 @@ void createMenus()
     pauseMenu.buttons[2].action = []()
         {
             gamePaused = false;
-			sleep(milliseconds(1000));
+			sleep(milliseconds(100));
             currentState = GameState::TitleScreen;
         };
 }

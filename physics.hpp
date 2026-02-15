@@ -16,4 +16,4 @@ extern pair<Vector2f, Vector2f> swimmingPath;
 void playerMovement();
 bool check_move(float dx, float dy);
 void check_action();
-bool check_breaking();
+bool breakingTile();
