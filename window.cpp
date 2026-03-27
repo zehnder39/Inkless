@@ -4,6 +4,7 @@
 #include "world.hpp"
 #include "saves.hpp"
 #include "physics.hpp"
+#include "texture.hpp"
 
 RenderWindow* window;
 TypeMenuScreen titleScreen("Inkless");
@@ -20,47 +21,9 @@ Color baseButtonColor = Color(200, 200, 200);
 Color baseHoveredColor = Color(80, 80, 80);
 Color basePlaceholderTextColor = Color(100, 100, 100);
 
-Texture gutter_point_texture, gutter_horizontal_texture, gutter_vertical_texture, gutter_up_left_texture, gutter_down_left_texture, gutter_branch_horizontal_down_texture, gutter_branch_horizontal_texture, gutter_branch_vertical_texture, gutter_up_texture, gutter_down_texture, gutter_left_texture;
-Texture ground_texture, debugGroundTexture;
-Texture rock_texture;
-Texture player_texture;
-Texture jump_texture;
-Sprite player_model(player_texture);
-
 void create_instance()
 {
     window->setKeyRepeatEnabled(false);
-}
-
-void load_textures()
-{
-    //ground
-    ground_texture.loadFromFile("ground3.png", false, IntRect({ 0, 0 }, { 128, 128 }));
-    ground_texture.setRepeated(true);
-    debugGroundTexture.loadFromFile("debug_ground.png", false, IntRect({ 0, 0 }, { 64, 64 }));
-    debugGroundTexture.setRepeated(true);
-    //player
-    player_texture.loadFromFile("squid_player.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    jump_texture.loadFromFile("squid_jump.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    player_model.setTexture(player_texture);
-    player_model.setTextureRect(IntRect({ 0, 0 }, { 32, 32 }));
-    player_model.setScale({ 2.f, 2.f });
-    //rock
-    rock_texture.loadFromFile("rock2.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    //gutter
-    gutter_horizontal_texture.loadFromFile("gutter2.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_point_texture.loadFromFile("gutter_point.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_vertical_texture.loadFromFile("gutter_vertical.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_up_texture.loadFromFile("gutter_up.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_horizontal_texture.loadFromFile("gutter.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_point_texture.loadFromFile("gutter_point.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_up_left_texture.loadFromFile("gutter_up_left.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_left_texture.loadFromFile("gutter_left.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_down_left_texture.loadFromFile("gutter_down_left.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_down_texture.loadFromFile("gutter_down.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_branch_vertical_texture.loadFromFile("gutter_branch_vertical.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_branch_horizontal_texture.loadFromFile("gutter_branch_horizontal.png", false, IntRect({ 0, 0 }, { 32, 32 }));
-    gutter_branch_horizontal_down_texture.loadFromFile("gutter_branch_horizontal_down.png", false, IntRect({ 0, 0 }, { 32, 32 }));
 }
 
 Button::Button()
@@ -245,11 +208,8 @@ void TypeMenuScreen::update()
 	view_offset = Vector2f(window->getSize().x / 2, window->getSize().y / 2);
     window->setView(View(view_offset, Vector2f(window->getSize())));
 
-    if (escapeKey)
-    {
-		currentState = GameState::TitleScreen;
-		escapeKey = false;
-	}
+    if (KeyInputManager::isActionTapped("escape"))
+        currentState = GameState::TitleScreen;
 
 	draw();
     for (auto& button : buttons)

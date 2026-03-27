@@ -24,27 +24,6 @@ void create_world(string name, int seed);
 void update_world();
 void update_surroundings(Vector2i chunk, Vector2i subc);
 
-class Player
-{
-public:
-	Vector2f position = {};
-	Vector2i chunk = {};
-	Vector2i subc = {};
-	int base_speed = 3.5;
-	int speed;
-	int baseSwimSpeed = 8;
-	bool swimming;
-	int animation_state = 0;
-	float animation_offset = 0;
-	Player(float set_x, float set_y);
-	void updateChunkSubc();
-	void swim(Vector2f movement);
-	void walk(Vector2f movement);
-	void move(Vector2f movement);
-	void walkAnimation(bool moving, float dx);
-};
-extern Player player;
-
 class Tile {
 public:
 	bool solid;
@@ -62,6 +41,7 @@ public:
 	virtual void interact() = 0;
 	virtual void update() = 0;
 	virtual void draw();
+	virtual void dropLoot() = 0;
 
 	// Needed for unique_ptr polymorphic copy (during deserialization)
 	virtual std::unique_ptr<Tile> clone() const = 0;
@@ -81,6 +61,7 @@ public:
 	void update() override {}
 	explicit Rock();
 	explicit Rock(Vector2i sub, Vector2i chun);
+	void dropLoot();
 
 
 	string type() const override { return "Rock"; }
@@ -111,6 +92,8 @@ public:
 	void interact() override;
 	void update() override;
 	void setTextureByName();
+	void dropLoot() override {}
+
 	explicit Gutter();
 	explicit Gutter(Vector2i sub, Vector2i chun);
 

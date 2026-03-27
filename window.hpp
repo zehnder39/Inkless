@@ -22,17 +22,11 @@ extern Color baseHoveredColor;
 extern Color basePlaceholderTextColor;
 
 //textures ect.
-extern Sprite player_model;
-extern Texture ground_texture, debugGroundTexture;
-extern Texture rock_texture;
-extern Texture player_texture;
-extern Texture jump_texture;
-extern Texture gutter_point_texture, gutter_horizontal_texture, gutter_vertical_texture, gutter_up_left_texture, gutter_down_left_texture, gutter_branch_horizontal_texture, gutter_branch_horizontal_down_texture, gutter_branch_vertical_texture, gutter_up_texture, gutter_down_texture, gutter_left_texture;
+
 
 extern RenderWindow* window;
 
 void create_instance();
-void load_textures();
 void createMenus();
 
 enum class GameState

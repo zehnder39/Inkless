@@ -3,19 +3,20 @@
 #include "world.hpp"
 #include "input.hpp"
 #include "renderer.hpp"
+#include "player.hpp"
 
 #include <iostream>
 
 bool swimmingAdvUp, swimmingAdvDown, swimmingAdvLeft, swimmingAdvRight;
 
-pair<Vector2f, Vector2f> swimmingPath ;
-
 //flags
 bool gamePaused = false;
 
+pair<Vector2f, Vector2f> swimmingPath;
 
 
-bool playerOutOffSwimmingPath()
+
+bool GutterPathing::playerOutOffSwimmingPath()
 {
 	if ((player.position.x >= swimmingPath.first.x && player.position.x >= swimmingPath.second.x) || (player.position.x <= swimmingPath.first.x && player.position.x <= swimmingPath.second.x))
 		return true;
@@ -23,7 +24,7 @@ bool playerOutOffSwimmingPath()
 		return true;
 }
 
-pair<Tile*, bool> nextSwimmingTile()
+pair<Tile*, bool> GutterPathing::nextSwimmingTile()
 {
 	Vector2f delta = (swimmingPath.first - swimmingPath.second);
 	float norm = sqrt(delta.x * delta.x + delta.y * delta.y);
@@ -38,7 +39,7 @@ pair<Tile*, bool> nextSwimmingTile()
 
 }
 
-void updateSwimmingPath(Gutter *gutter)
+void GutterPathing::updateSwimmingPath(Gutter *gutter)
 {
 	if (!playerOutOffSwimmingPath())
 	{
@@ -55,7 +56,7 @@ void updateSwimmingPath(Gutter *gutter)
 	auto next = nextSwimmingTile();
 	if (!next.second)
 	{
-		player.swimming = false;
+		player.state = playerState::normal;
 		Vector2f delta = (swimmingPath.first - swimmingPath.second);
 		float norm = sqrt(delta.x * delta.x + delta.y * delta.y);
 		delta *= player.base_speed / norm;
@@ -79,7 +80,7 @@ void updateSwimmingPath(Gutter *gutter)
 			numberDir += 1;
 		if (numberDir == 1 && ((gutter->up && swimmingAdvDown) || (gutter->down && swimmingAdvUp) || (gutter->left && swimmingAdvRight) || (gutter->right && swimmingAdvLeft)))
 		{
-			player.swimming = false;
+			player.state = playerState::normal;
 			player.walk({ 0,0 });
 			cout << "cul de sac + at center of tile + going to cds" << endl;
 		}
@@ -126,106 +127,6 @@ void tile_interaction()
 	}
 }
 
-void playerWalk()
-{
-	player.speed = player.base_speed;
-	Vector2f speed = {};
-	if (moving_left) {
-		speed.x += -player.speed;
-	}
-	if (moving_right) {
-		speed.x += player.speed;
-	}
-	if (moving_up)
-		speed.y += -player.speed;
-	if (moving_down)
-		speed.y += player.speed;
-	player.walk(speed);
-}
-
-void playerSwim()
-{
-	player.animation_offset = 0;
-	player.animation_state = 0;
-	if (moving_right && !moving_left)
-	{
-		swimmingAdvRight = true;
-		swimmingAdvLeft = false;
-	}
-	if (moving_left && !moving_right)
-	{
-		swimmingAdvRight = false;
-		swimmingAdvLeft = true;
-	}
-	if (moving_up && !moving_down)
-	{
-		swimmingAdvUp = true;
-		swimmingAdvDown = false;
-	}
-	if (moving_down && !moving_up)
-	{
-		swimmingAdvUp = false;
-		swimmingAdvDown = true;
-	}
-	debug_text.push_back("Swimming right advantage: " + to_string(swimmingAdvRight));
-	debug_text.push_back("Swimming left advantage: " + to_string(swimmingAdvLeft));
-	debug_text.push_back("Swimming up advantage: " + to_string(swimmingAdvUp));
-	debug_text.push_back("Swimming down advantage: " + to_string(swimmingAdvDown));
-	Tile* tile = getTile(player.chunk, player.subc);
-	if (auto* gutter = dynamic_cast<Gutter*>(tile))
-	{
-		Vector2f speed;
-		updateSwimmingPath(gutter);
-		Vector2f pathDir = swimmingPath.first - player.position;
-		pathDir *= 1 / sqrt(pathDir.x * pathDir.x + pathDir.y * pathDir.y);
-		// Set swimming advantage
-		if (pathDir.x < 0)
-		{
-			swimmingAdvLeft = true;
-			swimmingAdvRight = false;
-		}
-		else if (pathDir.x > 0)
-		{
-			swimmingAdvRight = true;
-			swimmingAdvLeft = false;
-		}
-		if (pathDir.y < 0)
-		{
-			swimmingAdvUp = true;
-			swimmingAdvDown = false;
-		}
-		else if (pathDir.y > 0)
-		{
-			swimmingAdvDown = true;
-			swimmingAdvUp = false;
-		}
-		// Reverse swimming direction;
-		if ((swimmingAdvLeft && pathDir.x > 0) || (swimmingAdvRight && pathDir.x < 0) || (swimmingAdvUp && pathDir.y > 0) || (swimmingAdvDown && pathDir.y < 0))
-		{
-			auto temp = swimmingPath.first;
-			swimmingPath.first = swimmingPath.second;
-			swimmingPath.second = temp;
-			cout << "reversing swimming direction" << endl;
-		}
-		// Move towards on swimmingPath objective
-		if (pathDir.x != 0)
-			speed.x = pathDir.x * player.baseSwimSpeed;
-		if (pathDir.y != 0)
-			speed.y = pathDir.y * player.baseSwimSpeed;
-		player.swim(speed);
-		debug_text.push_back("swimming speed: " + std::to_string(speed.x) + ", " + std::to_string(speed.y));
-	}
-	else
-		player.swimming = false;
-	CircleShape cir(3.f);
-	cir.setFillColor(Color::Yellow);
-	cir.setPosition(swimmingPath.second);
-	debug_draw.push_back(cir);
-	cir.setFillColor(Color::Magenta);
-	cir.setPosition(swimmingPath.first);
-	debug_draw.push_back(cir);
-}
-
 bool check_move(float dx, float dy)
 {
 	float nx = player.position.x + dx;
@@ -246,49 +147,35 @@ bool check_move(float dx, float dy)
 
 void check_action()
 {
-	if (use_key)
+	if (KeyInputManager::isActionTapped("use"))
 	{
-		if (player.swimming)
+		if (player.state == playerState::swimming)
 		{
-			player.swimming = false;
+			player.state = playerState::normal;
 			return;
 		}
 
 		tile_interaction();
 	}
+	if (KeyInputManager::isActionTapped("debug"))
+	{
+		debug_visual = !debug_visual;
+	}
+	if (KeyInputManager::isActionTapped("inventory"))
+	{
+		if (player.state == playerState::inventory)
+			player.state = playerState::normal;
+		else
+			player.state = playerState::inventory;
+	}
 }
 
 void playerMovement()
 {
-	if (!player.swimming)
-		playerWalk();
+	if (player.state == playerState::inventory)
+		return;
+	if (player.state == playerState::normal)
+		player.walk();
 	else
-		playerSwim();
-}
-
-void Player::walk(Vector2f movement)
-{
-	move(movement);
-	walkAnimation(movement.x != 0 or movement.y != 0, movement.x);
-}
-
-void Player::swim(Vector2f movement)
-{
-	move(movement);
-}
-
-void Player::move(Vector2f movement)
-{
-	if (movement.x > 0)
-		facing_left = false;
-	else if (movement.x < 0)
-		facing_left = true;
-	float norm = 1;
-	if (movement.x != 0 and movement.y != 0)
-		norm = sqrtf(movement.x / movement.x + movement.y / movement.y);
-	if (check_move(movement.x, 0))
-		position.x += movement.x * tile_size.x / (norm * 64);
-	if (check_move(0, movement.y))
-		position.y += movement.y * tile_size.y / (norm * 64);
-	updateChunkSubc();
+		player.swim();
 }

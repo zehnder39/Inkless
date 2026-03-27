@@ -4,6 +4,8 @@
 #include "renderer.hpp"
 #include "world.hpp"
 #include "window.hpp"
+#include "texture.hpp"
+#include "player.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -156,7 +158,7 @@ void load_world()
         WorldSave save = j.get<WorldSave>();
         world_chunks = std::move(save.chunks);
         player.position = save.playerPosition;
-        player_model.setOrigin({ 16.f, 16.f });
+        player.model.setOrigin({ 16.f, 16.f });
     }
     catch (const exception& e) {
         cerr << "Exception while loading world: " << e.what() << endl;

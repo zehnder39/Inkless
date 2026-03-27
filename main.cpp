@@ -8,6 +8,9 @@
 #include "physics.hpp"
 #include "saves.hpp"
 #include "window.hpp"
+#include "player.hpp"
+#include "texture.hpp"
+#include "items.hpp"
 
 double accumulatedTime = 0.0;
 const double timePerTick = 1000 / 60; //60 tps
@@ -21,11 +24,12 @@ int main()
 
     window = new RenderWindow(VideoMode({ 1920, 1080 }), "Inkless", State::Fullscreen);
     window->setVerticalSyncEnabled(true);
-	window->setFramerateLimit(6);
+	//window->setFramerateLimit(6);
 
     create_instance();
     load_textures();
 	createMenus();
+    createItems();
     while (window->isOpen())
     {
         input();
@@ -44,11 +48,14 @@ int main()
             break;
 
         case GameState::InGame:
-            if (escapeKey)
+            if (KeyInputManager::isActionTapped("escape"))
             {
+                if (player.state != playerState::normal)
+                {
+                    player.state = playerState::normal;
+                }
                 gamePaused = !gamePaused;
 				debug_info.push_back("Toggled pause, gamePaused: " + to_string(gamePaused));
-                escapeKey = false;
             }
 
             duration<double, std::milli> calculationTime = high_resolution_clock::now() - nowTime;
@@ -67,7 +74,7 @@ int main()
             }
 
 			debug_info.push_back("Game paused: " + to_string(gamePaused));
-			debug_info.push_back("Escape Key: " + to_string(escapeKey));
+			debug_info.push_back("Escape Key: " + to_string(KeyInputManager::isActionActive("escape")));
 
             render();
             break;

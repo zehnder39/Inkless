@@ -141,20 +141,26 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp20</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="items.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="saves.cpp" />
+    <ClCompile Include="texture.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definer.hpp" />
     <ClInclude Include="input.hpp" />
+    <ClInclude Include="items.hpp" />
     <ClInclude Include="physics.hpp" />
+    <ClInclude Include="player.hpp" />
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="saves.hpp" />
+    <ClInclude Include="texture.hpp" />
     <ClInclude Include="window.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>
@@ -175,10 +181,12 @@
     <Image Include="gutter_up.png" />
     <Image Include="gutter_vertical.png" />
     <Image Include="debug_ground.png" />
+    <Image Include="placeHolder.png" />
     <Image Include="rock.png" />
     <Image Include="rock2.png" />
     <Image Include="squid_player.png" />
     <Image Include="squid_jump.png" />
+    <Image Include="stone_item.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

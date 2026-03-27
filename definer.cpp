@@ -3,6 +3,7 @@
 #include "input.hpp"
 #include "window.hpp"
 #include "renderer.hpp"
+#include "player.hpp"
 
 #include <ctime>
 #include <cstdlib>
@@ -59,7 +60,7 @@ pair<pair<Vector2i, Vector2i>, bool> tileLookingAt()
 	float angle = - atan2(mouse_vector.y, mouse_vector.x);
 	float vector_norm = sqrt(((mouse_vector.x * mouse_vector.x) / (tile_size.x * tile_size.x))+ ((mouse_vector.y * mouse_vector.y) / (tile_size.y * tile_size.y)));
 	debug_text.push_back("vector norm = " + to_string(vector_norm));
-	float norm = min( float(1.5) , vector_norm);
+	float norm = min( float(3) , vector_norm);
 	float x = cos(angle) * norm * tile_size.x + player.position.x;
 	float y = sin(angle) * norm * tile_size.y + player.position.y;
 	return pos_to_chunk_subc(Vector2f(x, y));
