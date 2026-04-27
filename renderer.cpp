@@ -9,13 +9,14 @@
 #include "physics.hpp"
 #include "texture.hpp"
 #include "player.hpp"
+#include "items.hpp"
+#include "entities.hpp"
+#include "tiles.hpp"
 
 vector<CircleShape> debug_draw;
 vector<string> debug_text, debug_info;
 
 Font font("ARIAL.ttf");
-
-vector<CircleShape> entities;
 
 CircleShape entity1(100.f);
 RectangleShape ground({ 1024.f, 768.f });
@@ -68,8 +69,8 @@ void render_player()
 
 void render_entities()
 {
-    for (CircleShape entity : entities) {
-        window->draw(entity);
+    for (const auto& entity : entities) {
+        entity->draw();
     }
 }
 
@@ -151,8 +152,22 @@ void renderMenus()
     }
     if (player.state == playerState::inventory)
     {
-        int x = view_offset.x - player.inventory.getWidth() / 2;
-        player.inventory.draw(x);
+        if (player.container)
+        {
+            int xPlayer = view_offset.x - player.inventory.getWidth();
+            player.inventory.draw(xPlayer);
+            int xContainer = view_offset.x;
+            player.container->drawInterface(xContainer);
+            if (CraftSelector::open)
+            {
+				CraftSelector::draw();
+            }
+        }
+        else
+        {
+            int x = view_offset.x - player.inventory.getWidth() / 2;
+            player.inventory.draw(x);
+        }
     }
 }
 
@@ -166,13 +181,4 @@ void render()
     render_debug();
     renderMenus();
     window->display();
-}
-
-
-void Tile::draw()
-{
-    Sprite sprite(texture);
-    sprite.setPosition(Vector2f(tile_size.x * (chunk.x * 16 + subc.x) + break_offset + baseOffset.x, tile_size.y * (chunk.y * 16 + subc.y) + baseOffset.y));
-    sprite.scale(Vector2f(2.f * baseScale.x, 2.f * baseScale.y));
-    window->draw(sprite);
 }

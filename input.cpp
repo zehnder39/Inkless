@@ -13,33 +13,27 @@
 #include "player.hpp"
 
 //flags
-bool looking_up, looking_down, looking_right, looking_left;
-bool mouse_1, mouse_2;
 bool facing_left;
 
 list<sf::Keyboard::Key> KeyInputManager::keyPressedThisFrame;
 list<sf::Keyboard::Key> KeyInputManager::keyTapped;
 
-Vector2i mouse_pos;
-Vector2f mouse_vector;
+list<sf::Mouse::Button> MouseInputManager::buttonTapped;
+list<sf::Mouse::Button> MouseInputManager::buttonPressedThisFrame;
+Vector2f MouseInputManager::vector;
+Vector2i MouseInputManager::globalPosition;
+Vector2i MouseInputManager::localPosition;
 
-
-void KeyInputManager::update()
+void KeyInputManager::update(const optional<Event> event)
 {
-    keyTapped.clear();
-    while (const optional event = window->pollEvent())
+    if (const auto* key = event->getIf<Event::KeyPressed>())
     {
-        if (event->is<Event::Closed>())
-            shouldClose = true;
-        if (const auto* key = event->getIf<Event::KeyPressed>())
-        {
-            keyPressedThisFrame.push_back(key->code);
-			keyTapped.push_back(key->code);
-        }
-        if (const auto* key = event->getIf<Event::KeyReleased>())
-        {
-			keyPressedThisFrame.remove(key->code);
-        }
+        keyPressedThisFrame.push_back(key->code);
+		keyTapped.push_back(key->code);
+    }
+    if (const auto* key = event->getIf<Event::KeyReleased>())
+    {
+		keyPressedThisFrame.remove(key->code);
     }
 }
 
@@ -56,47 +50,50 @@ bool KeyInputManager::isActionTapped(string action) {
     return find(keyTapped.begin(), keyTapped.end(), key) != keyTapped.end();
 }
 
-void get_mouse_look()
+void MouseInputManager::update(const optional<Event> event)
 {
-    mouse_vector = { mouse_pos.x - player.position.x, - mouse_pos.y + player.position.y };
-    float angle = atan2f(mouse_vector.y, mouse_vector.x);
-    debug_text.push_back(to_string(angle));
-    looking_down = false;
-    looking_up = false;
-    looking_left = false;
-    looking_right = false;
-	if (angle >= - numbers::pi / 3 and angle <= numbers::pi / 3)
-        looking_right = true;
-    if (angle >= numbers::pi / 6 and angle <= numbers::pi * 5 / 6)
-		looking_up = true;
-    if (angle >= numbers::pi * 2 / 3 or angle <= -numbers::pi * 2 / 3)
-        looking_left = true;
-    if (angle >= - numbers::pi * 5 / 6 and angle <=  - numbers::pi / 6)
-        looking_down = true;
+    
+    if (const auto* mouseEvent = event->getIf<Event::MouseButtonPressed>())
+    {
+        buttonPressedThisFrame.push_back(mouseEvent->button);
+        buttonTapped.push_back(mouseEvent->button);
+    }
+    if (const auto* mouseEvent = event->getIf<Event::MouseButtonReleased>())
+    {
+        buttonPressedThisFrame.remove(mouseEvent->button);
+    }
 }
 
-void mouse_input()
+bool MouseInputManager::isActionActive(string action)
 {
-    if (currentState == GameState::InGame)
-        mouse_pos = Vector2i(Mouse::getPosition(*window).x + view_offset.x - window->getSize().x / 2, Mouse::getPosition(*window).y + view_offset.y - window->getSize().y / 2);
-    else
-		mouse_pos = Vector2i(Mouse::getPosition(*window).x, Mouse::getPosition(*window).y);
-    if (Mouse::isButtonPressed(Mouse::Button::Left))
-        mouse_1 = true;
-    else
-        mouse_1 = false;
-    if (Mouse::isButtonPressed(Mouse::Button::Right))
-        mouse_2 = true;
-    else
-        mouse_2 = false;
-	get_mouse_look();
-
+    Mouse::Button button = MouseInputManager::keyBinds.at(action);
+    if (find(buttonPressedThisFrame.begin(), buttonPressedThisFrame.end(), button) != buttonPressedThisFrame.end())
+        return true;
+    return false;
 }
+
+bool MouseInputManager::isActionTapped(string action)
+{
+    Mouse::Button button = MouseInputManager::keyBinds.at(action);
+    return find(buttonTapped.begin(), buttonTapped.end(), button) != buttonTapped.end();
+}
+
 
 void input()
 {
-    KeyInputManager::update();
-    mouse_input();
+    KeyInputManager::keyTapped.clear();
+    MouseInputManager::buttonTapped.clear();
+    while (const optional event = window->pollEvent())
+    {
+        if (event->is<Event::Closed>())
+            shouldClose = true;
+        MouseInputManager::update(event);
+        KeyInputManager::update(event);
+    }
+    MouseInputManager::localPosition = Vector2i(Mouse::getPosition(*window).x, Mouse::getPosition(*window).y);
+    MouseInputManager::globalPosition = Vector2i(Mouse::getPosition(*window).x + view_offset.x - window->getSize().x / 2, Mouse::getPosition(*window).y + view_offset.y - window->getSize().y / 2);
+    MouseInputManager::vector = Vector2f(MouseInputManager::globalPosition.x - player.position.x, -MouseInputManager::globalPosition.y + player.position.y);
+    
 }
 
 void Gutter::interact()
@@ -105,9 +102,9 @@ void Gutter::interact()
     Vector2f tile_pos = chunkSubcToPos(chunk, subc);
     player.position = Vector2f(tile_pos.x + center.x, tile_pos.y + center.y);
     player.updateChunkSubc();
-    swimmingPath = make_pair(player.position, player.position);
-    swimmingAdvDown = false;
-    swimmingAdvLeft = false;
-    swimmingAdvRight = false;
-    swimmingAdvUp = false;
+    player.gutterPathing.swimmingPath = make_pair(player.position, player.position);
+    player.gutterPathing.swimmingAdvDown = false;
+    player.gutterPathing.swimmingAdvLeft = false;
+    player.gutterPathing.swimmingAdvRight = false;
+    player.gutterPathing.swimmingAdvUp = false;
 }

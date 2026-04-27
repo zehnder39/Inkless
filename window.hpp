@@ -57,6 +57,23 @@ struct Button
 	void setGlobalPosition();
 };
 
+struct IconButton
+{
+	string textureName;
+	RectangleShape box;
+	Color buttonColor = baseButtonColor;
+	Color hoveredColor = baseHoveredColor;
+
+	function<void()> action = [] {};
+
+	void draw();
+	bool checkOnBox();
+
+	IconButton() = default;
+	IconButton(string texName, float x, float y);
+	IconButton(string texName, Vector2f xy);
+};
+
 struct TextBox
 {
 	Text placeholderText = Text(font, "Type here dumbass..", 1);

@@ -57,8 +57,8 @@ pair<pair<Vector2i, Vector2i>, bool> inRange(Vector2i chunk, Vector2i subc)
 
 pair<pair<Vector2i, Vector2i>, bool> tileLookingAt()
 {
-	float angle = - atan2(mouse_vector.y, mouse_vector.x);
-	float vector_norm = sqrt(((mouse_vector.x * mouse_vector.x) / (tile_size.x * tile_size.x))+ ((mouse_vector.y * mouse_vector.y) / (tile_size.y * tile_size.y)));
+	float angle = - atan2(MouseInputManager::vector.y, MouseInputManager::vector.x);
+	float vector_norm = sqrt(((MouseInputManager::vector.x * MouseInputManager::vector.x) / (tile_size.x * tile_size.x))+ ((MouseInputManager::vector.y * MouseInputManager::vector.y) / (tile_size.y * tile_size.y)));
 	debug_text.push_back("vector norm = " + to_string(vector_norm));
 	float norm = min( float(3) , vector_norm);
 	float x = cos(angle) * norm * tile_size.x + player.position.x;
@@ -78,7 +78,7 @@ Tile* getTile(Vector2i chunk, Vector2i subc)
 	auto chunk_subc = inRange(chunk, subc);
 	if (chunk_subc.second)
 	{
-		Tile* tile = world_chunks[chunk_subc.first.first.x][chunk_subc.first.first.y].changeables[chunk_subc.first.second.x][chunk_subc.first.second.y].get();
+		Tile* tile = world_chunks[chunk_subc.first.first.x][chunk_subc.first.first.y].tiles[chunk_subc.first.second.x][chunk_subc.first.second.y].get();
 		return tile;
 	}
 	return nullptr;

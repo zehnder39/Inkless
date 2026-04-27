@@ -137,10 +137,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="constants.cpp" />
+    <ClCompile Include="craft.cpp" />
     <ClCompile Include="definer.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp20</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="entities.cpp" />
     <ClCompile Include="items.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="input.cpp" />
@@ -149,11 +152,15 @@
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="saves.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="tiles.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="constants.hpp" />
+    <ClInclude Include="craft.hpp" />
     <ClInclude Include="definer.hpp" />
+    <ClInclude Include="entities.hpp" />
     <ClInclude Include="input.hpp" />
     <ClInclude Include="items.hpp" />
     <ClInclude Include="physics.hpp" />
@@ -161,15 +168,16 @@
     <ClInclude Include="renderer.hpp" />
     <ClInclude Include="saves.hpp" />
     <ClInclude Include="texture.hpp" />
+    <ClInclude Include="tiles.hpp" />
     <ClInclude Include="window.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="chest.png" />
     <Image Include="ground.png" />
     <Image Include="ground2.png" />
     <Image Include="ground3.png" />
-    <Image Include="gutter.png" />
-    <Image Include="gutter2.png" />
+    <Image Include="gutter_horizontal.png" />
     <Image Include="gutter_branch_vertical.png" />
     <Image Include="gutter_branch_horizontal.png" />
     <Image Include="gutter_branch_horizontal_down.png" />

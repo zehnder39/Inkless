@@ -45,62 +45,62 @@ void Player::swim()
 	animation_state = 0;
 	if (KeyInputManager::isActionActive("move_right") && !KeyInputManager::isActionActive("move_left"))
 	{
-		swimmingAdvRight = true;
-		swimmingAdvLeft = false;
+		gutterPathing.swimmingAdvRight = true;
+		gutterPathing.swimmingAdvLeft = false;
 	}
 	if (KeyInputManager::isActionActive("move_left") && !KeyInputManager::isActionActive("move_right"))
 	{
-		swimmingAdvRight = false;
-		swimmingAdvLeft = true;
+		gutterPathing.swimmingAdvRight = false;
+		gutterPathing.swimmingAdvLeft = true;
 	}
 	if (KeyInputManager::isActionActive("move_up") && !KeyInputManager::isActionActive("move_down"))
 	{
-		swimmingAdvUp = true;
-		swimmingAdvDown = false;
+		gutterPathing.swimmingAdvUp = true;
+		gutterPathing.swimmingAdvDown = false;
 	}
 	if (KeyInputManager::isActionActive("move_down") && !KeyInputManager::isActionActive("move_up"))
 	{
-		swimmingAdvUp = false;
-		swimmingAdvDown = true;
+		gutterPathing.swimmingAdvUp = false;
+		gutterPathing.swimmingAdvDown = true;
 	}
-	debug_text.push_back("Swimming right advantage: " + to_string(swimmingAdvRight));
-	debug_text.push_back("Swimming left advantage: " + to_string(swimmingAdvLeft));
-	debug_text.push_back("Swimming up advantage: " + to_string(swimmingAdvUp));
-	debug_text.push_back("Swimming down advantage: " + to_string(swimmingAdvDown));
+	debug_text.push_back("Swimming right advantage: " + to_string(gutterPathing.swimmingAdvRight));
+	debug_text.push_back("Swimming left advantage: " + to_string(gutterPathing.swimmingAdvLeft));
+	debug_text.push_back("Swimming up advantage: " + to_string(gutterPathing.swimmingAdvUp));
+	debug_text.push_back("Swimming down advantage: " + to_string(gutterPathing.swimmingAdvDown));
 	Tile* tile = getTile(player.chunk, player.subc);
 	if (auto* gutter = dynamic_cast<Gutter*>(tile))
 	{
 		Vector2f speed;
 		gutterPathing.updateSwimmingPath(gutter);
-		Vector2f pathDir = swimmingPath.first - position;
+		Vector2f pathDir = gutterPathing.swimmingPath.first - position;
 		pathDir *= 1 / sqrt(pathDir.x * pathDir.x + pathDir.y * pathDir.y);
 		// Set swimming advantage
 		if (pathDir.x < 0)
 		{
-			swimmingAdvLeft = true;
-			swimmingAdvRight = false;
+			gutterPathing.swimmingAdvLeft = true;
+			gutterPathing.swimmingAdvRight = false;
 		}
 		else if (pathDir.x > 0)
 		{
-			swimmingAdvRight = true;
-			swimmingAdvLeft = false;
+			gutterPathing.swimmingAdvRight = true;
+			gutterPathing.swimmingAdvLeft = false;
 		}
 		if (pathDir.y < 0)
 		{
-			swimmingAdvUp = true;
-			swimmingAdvDown = false;
+			gutterPathing.swimmingAdvUp = true;
+			gutterPathing.swimmingAdvDown = false;
 		}
 		else if (pathDir.y > 0)
 		{
-			swimmingAdvDown = true;
-			swimmingAdvUp = false;
+			gutterPathing.swimmingAdvDown = true;
+			gutterPathing.swimmingAdvUp = false;
 		}
 		// Reverse swimming direction;
-		if ((swimmingAdvLeft && pathDir.x > 0) || (swimmingAdvRight && pathDir.x < 0) || (swimmingAdvUp && pathDir.y > 0) || (swimmingAdvDown && pathDir.y < 0))
+		if ((gutterPathing.swimmingAdvLeft && pathDir.x > 0) || (gutterPathing.swimmingAdvRight && pathDir.x < 0) || (gutterPathing.swimmingAdvUp && pathDir.y > 0) || (gutterPathing.swimmingAdvDown && pathDir.y < 0))
 		{
-			auto temp = swimmingPath.first;
-			swimmingPath.first = swimmingPath.second;
-			swimmingPath.second = temp;
+			auto temp = gutterPathing.swimmingPath.first;
+			gutterPathing.swimmingPath.first = gutterPathing.swimmingPath.second;
+			gutterPathing.swimmingPath.second = temp;
 		}
 		// Move towards on swimmingPath objective
 		if (pathDir.x != 0)
@@ -114,10 +114,10 @@ void Player::swim()
 		player.state = playerState::normal;
 	CircleShape cir(3.f);
 	cir.setFillColor(Color::Yellow);
-	cir.setPosition(swimmingPath.second);
+	cir.setPosition(gutterPathing.swimmingPath.second);
 	debug_draw.push_back(cir);
 	cir.setFillColor(Color::Magenta);
-	cir.setPosition(swimmingPath.first);
+	cir.setPosition(gutterPathing.swimmingPath.first);
 	debug_draw.push_back(cir);
 }
 

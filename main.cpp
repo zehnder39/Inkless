@@ -11,9 +11,20 @@
 #include "player.hpp"
 #include "texture.hpp"
 #include "items.hpp"
+#include "entities.hpp"
+#include "tiles.hpp"
+#include "craft.hpp"
 
 double accumulatedTime = 0.0;
 const double timePerTick = 1000 / 60; //60 tps
+
+void loadAssets()
+{
+    load_textures();
+    createMenus();
+    createItems();
+    defineCrafts();
+}
 
 int main()
 {
@@ -27,9 +38,7 @@ int main()
 	//window->setFramerateLimit(6);
 
     create_instance();
-    load_textures();
-	createMenus();
-    createItems();
+	loadAssets();
     while (window->isOpen())
     {
         input();
@@ -53,6 +62,7 @@ int main()
                 if (player.state != playerState::normal)
                 {
                     player.state = playerState::normal;
+                    player.container = nullptr;
                 }
                 gamePaused = !gamePaused;
 				debug_info.push_back("Toggled pause, gamePaused: " + to_string(gamePaused));
@@ -67,9 +77,9 @@ int main()
 
             while (accumulatedTime >= timePerTick)
             {
+                update_world();
                 playerMovement();
                 check_action();
-                update_world();
 				accumulatedTime -= timePerTick;
             }
 

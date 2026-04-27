@@ -16,8 +16,6 @@ extern Player player;
 //flags
 extern bool gamePaused;
 
-extern pair<Vector2f, Vector2f> swimmingPath;
-
 void playerMovement();
 bool check_move(float dx, float dy);
 void check_action();
@@ -27,6 +25,7 @@ class GutterPathing
 {
 public:
 	pair<Vector2f, Vector2f> swimmingPath;
+	bool swimmingAdvUp, swimmingAdvDown, swimmingAdvLeft, swimmingAdvRight;
 
 	void updateSwimmingPath(Gutter* gutter);
 	pair<Tile*, bool> nextSwimmingTile();

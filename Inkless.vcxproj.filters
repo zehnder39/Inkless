@@ -48,6 +48,18 @@
     <ClCompile Include="items.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tiles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="entities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="craft.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="constants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definer.hpp">
@@ -80,6 +92,18 @@
     <ClInclude Include="items.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tiles.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="entities.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="craft.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="ground.png">
@@ -100,13 +124,10 @@
     <Image Include="ground3.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="gutter.png">
+    <Image Include="gutter_horizontal.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="rock2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="gutter2.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="gutter_vertical.png">
@@ -146,6 +167,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="stone_item.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="chest.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

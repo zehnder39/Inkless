@@ -10,8 +10,9 @@
 #include "saves.hpp"
 #include "texture.hpp"
 #include "player.hpp"
+#include "tiles.hpp"
+#include "entities.hpp"
 
-Vector2i tile_size = {64, 48};
 int chunkSize = 16;
 vector<vector<Chunk>> world_chunks;
 Vector2i worldSize = { 3, 3 };
@@ -21,8 +22,6 @@ void create_world(string world_nam, int seed)
     world_name = world_nam;
 	srand(seed);
 	player.model.setOrigin({ 16.f, 16.f });
-	entity1.setFillColor(Color::Green);
-	entities.push_back(entity1);
 	for (int x = 0; x < worldSize.x; x++)
 	{
 		for (int y = 0; y < worldSize.y; y++)
@@ -43,66 +42,58 @@ void delete_tile(Tile* tile)
 {
 	Vector2i chunk = tile->chunk;
 	Vector2i subc = tile->subc;
-	world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y].reset();
-	world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y] = nullptr;
+	world_chunks[chunk.x][chunk.y].tiles[subc.x][subc.y].reset();
+	removeFromVector(tickingTiles, make_pair(chunk, subc));
 	update_surroundings(chunk, subc);
+}
+
+void deleteEntity(Entity* entity)
+{
+	removeFromVector(entities, entity);
 }
 
 bool breakingTile()
 {
-	if (mouse_1)
+	if (!MouseInputManager::isActionActive("break"))
 	{
-		int dx = tile_size.x;
-		if (looking_left)
-			dx = -tile_size.x;
-		else if (looking_right)
-			dx = tile_size.x;
-		else
-			dx = 0;
-		int dy = tile_size.y;
-		if (looking_up)
-			dy = -tile_size.y;
-		else if (looking_down)
-			dy = tile_size.y;
-		else
-			dy = 0;
-		Vector2i chunk_poss = tileLookingAt().first.first;
-		Vector2i subc = tileLookingAt().first.second;
-		if (tileLookingAt().second)
+		if (breaking_mem)
 		{
-			Chunk& chunk = world_chunks[chunk_poss.x][chunk_poss.y];
-			Tile* tile = chunk.changeables[subc.x][subc.y].get();
-			CircleShape cir(30.f);
-			cir.setFillColor(Color::Red);
-			cir.setPosition(Vector2f(chunk_poss.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk_poss.y * (tile_size.y * 16) + subc.y * tile_size.y));
-			debug_draw.push_back(cir);
-			if (tile)
-			{
-				if (tile != breaking_mem)
-				{
-					break_time = 0;
-					breaking_mem = tile;
-					tile->break_offset = 0;
-				}
-				else if (break_time >= tile->durability)
-				{
+			breaking_mem->break_offset = 0;
+		}
+		break_time = 0;
+		return false;
+	}
 
-					tile->dropLoot();
-					delete_tile(tile);
-					break_time = 0;
-				}
-				else
-					tile->break_offset = float((break_time % 5 - 2) * 5 * break_time / tile->durability);
-				return true;
+	Vector2i chunk_poss = tileLookingAt().first.first;
+	Vector2i subc = tileLookingAt().first.second;
+	if (tileLookingAt().second)
+	{
+		Chunk& chunk = world_chunks[chunk_poss.x][chunk_poss.y];
+		Tile* tile = chunk.tiles[subc.x][subc.y].get();
+		CircleShape cir(30.f);
+		cir.setFillColor(Color::Red);
+		cir.setPosition(Vector2f(chunk_poss.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk_poss.y * (tile_size.y * 16) + subc.y * tile_size.y));
+		debug_draw.push_back(cir);
+		if (tile)
+		{
+			if (tile != breaking_mem)
+			{
+				break_time = 0;
+				breaking_mem = tile;
+				tile->break_offset = 0;
 			}
+			else if (break_time >= tile->durability)
+			{
+
+				tile->dropLoot();
+				delete_tile(tile);
+				break_time = 0;
+			}
+			else
+				tile->break_offset = float((break_time % 5 - 2) * 5 * break_time / tile->durability);
+			return true;
 		}
 	}
-	if (breaking_mem)
-	{
-		breaking_mem->break_offset = 0;
-	}
-	break_time = 0;
-	return false;
 }
 
 void place_gutter()
@@ -111,16 +102,12 @@ void place_gutter()
 	Vector2i subc = tileLookingAt().first.second;
 	if (tileLookingAt().second)
 	{
-		CircleShape cir(30.f);
-		cir.setFillColor(Color::Blue);
-		cir.setPosition(Vector2f(chunk.x * (tile_size.x * 16) + subc.x * tile_size.x, chunk.y * (tile_size.y * 16) + subc.y * tile_size.y));
-		debug_draw.push_back(cir);
 		if (!getTile(chunk, subc))
 		{
-			world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y] = make_unique<Gutter>(Vector2i(subc.x, subc.y), Vector2i(chunk.x, chunk.y));
-			auto& slot = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
+			world_chunks[chunk.x][chunk.y].tiles[subc.x][subc.y] = make_unique<Gutter>(Vector2i(subc.x, subc.y), Vector2i(chunk.x, chunk.y));
+			auto& slot = world_chunks[chunk.x][chunk.y].tiles[subc.x][subc.y];
 			update_surroundings(chunk, subc);
-			auto& slot2 = world_chunks[chunk.x][chunk.y].changeables[subc.x][subc.y];
+			auto& slot2 = world_chunks[chunk.x][chunk.y].tiles[subc.x][subc.y];
 		}
 	}
 }
@@ -148,206 +135,18 @@ void update_world()
 		break_time = 0;
 	else
 		break_time++;
-	if (mouse_2)
+	if (MouseInputManager::isActionTapped("place"))
 		place_gutter();
-}
-
-Rock::Rock()
-{
-	solid = true;
-	breakable = true;
-	durability = 45;
-	break_offset = 0;
-	texture = TextureManager::get("assets/passive/rock");
-	baseOffset = Vector2f(0, tile_size.y - 64);
-}
-
-Rock::Rock(Vector2i sub, Vector2i chun)
-{
-	subc = sub;
-	chunk = chun;
-	solid = true;
-	breakable = true;
-	durability = 45;
-	break_offset = 0;
-	texture = TextureManager::get("assets/passive/rock");
-	baseOffset = Vector2f(0, tile_size.y - 64);
-}
-
-void Rock::dropLoot()
-{
-	int min_loot = 300;
-	int max_loot = 500;
-	int loot_count = rand() % (max_loot - min_loot + 1) + min_loot;
-	int lost = player.inventory.addItem("stone", loot_count);
-}
-
-Gutter::Gutter(Vector2i sub, Vector2i chun)
-{
-	subc = sub;
-	chunk = chun;
-	solid = false;
-	breakable = true;
-	durability = 10;
-	break_offset = 0;
-}
-
-Gutter::Gutter()
-{
-	solid = false;
-	breakable = true;
-	durability = 10;
-	break_offset = 0;
-}
-
-void Gutter::update()
-{
-	bool callBreak = false;
-	up = false;
-	down = false;
-	left = false;
-	right = false;
-	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x, subc.y - 1))))
-		up = true;
-	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x, subc.y + 1))))
-		down = true;
-	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x - 1, subc.y))))
-		left = true;
-	if (auto* a = dynamic_cast<Gutter*>(getTile(chunk, Vector2i(subc.x + 1, subc.y))))
-		right = true;
-	if (!right && !left && !up && !down)
+	for (auto& entity : entities)
 	{
-		texture = TextureManager::get("assets/passive/gutter/point");
-		textureName = "assets/passive/gutter/point";
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
+		entity->update();
 	}
-	if (!right && !left && !up && down)
+	for (auto chunkSubc : tickingTiles)
 	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/down");
-		textureName = "assets/passive/gutter/down";
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
+		Tile* tile = getTile(chunkSubc.first, chunkSubc.second);
+		if (tile)
+			tile->update();
 	}
-
-	if (!right && !left && up && !down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/up");
-		textureName = "assets/passive/gutter/up";
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
-	}
-
-	if (!right && !left && up && down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/vertical");
-		textureName = "assets/passive/gutter/vertical";
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
-	}
-
-	if (!right && left && !up && !down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/left");
-		textureName = "assets/passive/gutter/left";
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
-	}
-	if (!right && left && !up && down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/down_left");
-		textureName = "assets/passive/gutter/down_left";
-		center = Vector2f(tile_size.x / 4, tile_size.y * 3 / 4);
-	}
-
-	if (!right && left && up && !down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/up_left");
-		textureName = "assets/passive/gutter/up_left";
-		center = Vector2f(tile_size.x / 4, tile_size.y / 4);
-	}
-
-	if (!right && left && up && down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/branch_vertical_right");
-		textureName = "assets/passive/gutter/branch_vertical_right";
-		center = Vector2f(tile_size.x / 6, tile_size.y / 2);
-	}
-	if (right && !left && !up && !down)
-	{
-		texture = TextureManager::get("assets/passive/gutter/left");
-		textureName = "gutter_left_textureassets/passive/gutter/left";
-		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f(tile_size.x, 0.f);
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
-	}
-	if (right && !left && !up && down)
-	{
-		texture = TextureManager::get("assets/passive/gutter/down_left");
-		textureName = "assets/passive/gutter/down_left";
-		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f(tile_size.x, 0.f);
-		center = Vector2f(tile_size.x * 3 / 4, tile_size.y * 3 / 4);
-	}
-	if (right && !left && up && !down)
-	{
-		texture = TextureManager::get("assets/passive/gutter/up_left");
-		textureName = "assets/passive/gutter/up_left";
-		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f(tile_size.x, 0.f);
-		center = Vector2f(tile_size.x * 3 / 4, tile_size.y / 4);
-	}
-	if (right && !left && up && down)
-	{
-		texture = TextureManager::get("assets/passive/gutter/branch_vertical_right");
-		textureName = "assets/passive/gutter/branch_vertical_right";
-		baseScale = Vector2f(-float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = Vector2f(tile_size.x, 0.f);
-		center = Vector2f(tile_size.x * 5 / 6, tile_size.y / 2);
-	}
-	if (right && left && !up && !down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/horizontal");
-		textureName = "assets/passive/gutter/horizontal";
-		center = Vector2f(tile_size.x / 2, tile_size.y / 2);
-	}
-	if (right && left && !up && down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/branch_horizontal_up");
-		textureName = "assets/passive/gutter/branch_horizontal_up";
-		center = Vector2f(tile_size.x / 2, tile_size.y * 5 / 6);
-	}
-	if (right && left && up && !down)
-	{
-		baseScale = Vector2f(float(tile_size.x) / 64, float(tile_size.y) / 64);
-		baseOffset = { 0.f, 0.f };
-		texture = TextureManager::get("assets/passive/gutter/branch_horizontal_down");
-		textureName = "assets/passive/gutter/branch_horizontal_down";
-		center = Vector2f(tile_size.x / 2, tile_size.y / 6);
-	}
-	if (right && left && up && down)
-		delete_tile(getTile(chunk, subc));
-
-}
-
-void Gutter::setTextureByName()
-{
-	texture = TextureManager::get(textureName);
 }
 
 Chunk::Chunk()
@@ -374,6 +173,7 @@ Chunk::Chunk(const Vector2i poss)
 	debugGround.setTexture(&TextureManager::get("ground/debug"));
 	debugGround.setTextureRect(IntRect({ 0, 0 }, { 1024, 1024 }));
 }
+
 vector<Tile*> Chunk::list_tiles()
 {
 	vector<Tile*> in_chunk;
@@ -381,8 +181,8 @@ vector<Tile*> Chunk::list_tiles()
 	{
 		for (int y = 0; y < 16; y++)
 		{
-			if (changeables[x][y] != nullptr)
-				in_chunk.push_back(changeables[x][y].get());
+			if (tiles[x][y] != nullptr)
+				in_chunk.push_back(tiles[x][y].get());
 		}
 	}
 	return in_chunk;
@@ -394,9 +194,19 @@ void Chunk::rockdom()
 	{
 		for (int y = 0; y < 16; y++)
 		{
+			if (x == 8 && y == 8)
+			{
+				tiles[x][y] = make_unique<Chest>(position, Vector2i(x, y));
+				continue;
+			}
+			if (x == 7 && y == 8)
+			{
+				tiles[x][y] = make_unique<Furnace>(position, Vector2i(x, y));
+				continue;
+			}
 			int num = rand() % 8;
 			if (num == 0)
-				changeables[x][y] = make_unique<Rock>(Vector2i(x, y), Vector2i(position.x, position.y));
+				tiles[x][y] = make_unique<Rock>(Vector2i(x, y), Vector2i(position.x, position.y));
 		}
 	}
 }

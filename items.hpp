@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <functional>
 
+#include "constants.hpp"
 
 class Player;
 
@@ -16,25 +17,30 @@ struct InventorySlot
 {
 	string item = "";
 	int quantity = 0;
+	bool hovered = false;
+    Vector2f position;
 
     void draw(float x, float y);
+	void draw(float x, float y, bool transparent);
+    void update();
 
-	InventorySlot() = default;
+	InventorySlot() {}
 };
 
 struct Inventory {
     vector<InventorySlot> slots;
 	int maxSlots;
     int width;
+    string name;
 
     void draw(float x);
 	int getItemQuantity(string item);
 	int addItem(string item, int quantity);
 	int removeItem(string item, int quantity);
-    int getWidth();
-	int getHeight();
+    int getWidth() const;
+    int getHeight() const;
 
-	Inventory(int maxSlots, int width) : maxSlots(maxSlots), width(width) {
+	Inventory(int maxSlots, int width, string name) : maxSlots(maxSlots), width(width), name(name) {
 		slots.resize(maxSlots);
 	}
 };
@@ -54,7 +60,7 @@ struct ItemDef {
 
 class ItemManager {
 private:
-    static unordered_map<string, ItemDef>& getMap();
+	static unordered_map<string, ItemDef> itemMap;
 public:
     static void registerItem(string name, ItemDef def);
     static const ItemDef& get(string name);

@@ -56,8 +56,8 @@ bool Button::checkOnBox()
 {
     FloatRect boxBounds = box.getGlobalBounds();
     Vector2f boxPosition = boxBounds.position;
-    if (mouse_pos.x >= boxPosition.x && mouse_pos.x <= boxPosition.x + boxBounds.size.x &&
-        mouse_pos.y >= boxPosition.y && mouse_pos.y <= boxPosition.y + boxBounds.size.y)
+    if (MouseInputManager::globalPosition.x >= boxPosition.x && MouseInputManager::globalPosition.x <= boxPosition.x + boxBounds.size.x &&
+        MouseInputManager::globalPosition.y >= boxPosition.y && MouseInputManager::globalPosition.y <= boxPosition.y + boxBounds.size.y)
     {
         return true;
     }
@@ -90,6 +90,57 @@ void Button::setGlobalPosition()
     box.setPosition(localCenterOffset + window->getView().getCenter());
 }
 
+
+IconButton::IconButton(string texName, float x, float y)
+{
+    textureName = texName;
+    box = RectangleShape(Vector2f( 32 * guiScale, 32 * guiScale ));
+    box.setOutlineThickness(4.f);
+    box.setPosition(Vector2f(x, y));
+}
+
+IconButton::IconButton(string texName, Vector2f xy)
+{
+    textureName = texName;
+    box = RectangleShape(Vector2f(32 * guiScale, 32 * guiScale));
+    box.setOutlineThickness(4.f);
+    box.setPosition(xy);
+}
+
+void IconButton::draw()
+{
+    if (checkOnBox())
+    {
+        box.setFillColor(hoveredColor);
+        box.setOutlineColor(buttonColor);
+    }
+    else
+    {
+        box.setFillColor(buttonColor);
+        box.setOutlineColor(hoveredColor);
+    }
+    Sprite sprite(TextureManager::get(textureName));
+    sprite.setPosition(box.getPosition());
+    sprite.scale(Vector2f(guiScale, guiScale));
+    window->draw(box);
+    window->draw(sprite);
+}
+
+bool IconButton::checkOnBox()
+{
+    Vector2f boxPosition = box.getGlobalBounds().position;
+    FloatRect boxBounds = box.getGlobalBounds();
+    if (MouseInputManager::globalPosition.x >= boxPosition.x && MouseInputManager::globalPosition.x <= boxPosition.x + boxBounds.size.x &&
+        MouseInputManager::globalPosition.y >= boxPosition.y && MouseInputManager::globalPosition.y <= boxPosition.y + boxBounds.size.y)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 TextBox::TextBox()
 {
     box = RectangleShape({ 1.f, 1.f });
@@ -118,8 +169,8 @@ bool TextBox::checkOnBox()
 {
     Vector2f boxPosition = box.getGlobalBounds().position;
     FloatRect boxBounds = box.getGlobalBounds();
-    if (mouse_pos.x >= boxPosition.x && mouse_pos.x <= boxPosition.x + boxBounds.size.x &&
-        mouse_pos.y >= boxBounds.position.y && mouse_pos.y <= boxBounds.position.y + boxBounds.size.y)
+    if (MouseInputManager::globalPosition.x >= boxPosition.x && MouseInputManager::globalPosition.x <= boxPosition.x + boxBounds.size.x &&
+        MouseInputManager::globalPosition.y >= boxBounds.position.y && MouseInputManager::globalPosition.y <= boxBounds.position.y + boxBounds.size.y)
     {
         return true;
     }
@@ -214,7 +265,7 @@ void TypeMenuScreen::update()
 	draw();
     for (auto& button : buttons)
     {
-        if (button.checkOnBox() && mouse_1)
+        if (button.checkOnBox() && MouseInputManager::isActionTapped("break"))
         {
             button.action();
         }
@@ -222,11 +273,11 @@ void TypeMenuScreen::update()
     }
     for (auto& textBox : textBoxes)
     {
-        if (textBox.checkOnBox() && mouse_1)
+        if (textBox.checkOnBox() && MouseInputManager::isActionTapped("break"))
         {
             textBox.selected = true;
         }
-        else if (mouse_1)
+        else if (MouseInputManager::isActionTapped("break"))
         {
             textBox.selected = false;
         }
@@ -262,18 +313,18 @@ void TypeScreenLockedMenu::update()
     draw();
     for (auto& button : buttons)
     {
-        if (button.checkOnBox() && mouse_1)
+        if (button.checkOnBox() && MouseInputManager::isActionTapped("break"))
         {
             button.action();
         }
     }
     for (auto& textBox : textBoxes)
     {
-        if (textBox.checkOnBox() && mouse_1)
+        if (textBox.checkOnBox() && MouseInputManager::isActionTapped("break"))
         {
             textBox.selected = true;
         }
-        else if (mouse_1)
+        else if (MouseInputManager::isActionTapped("break"))
         {
             textBox.selected = false;
         }

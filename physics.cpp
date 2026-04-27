@@ -7,14 +7,8 @@
 
 #include <iostream>
 
-bool swimmingAdvUp, swimmingAdvDown, swimmingAdvLeft, swimmingAdvRight;
-
 //flags
 bool gamePaused = false;
-
-pair<Vector2f, Vector2f> swimmingPath;
-
-
 
 bool GutterPathing::playerOutOffSwimmingPath()
 {
@@ -116,7 +110,7 @@ void GutterPathing::updateSwimmingPath(Gutter *gutter)
 
 void tile_interaction()
 {
-	auto mouse_tile = pos_to_chunk_subc(Vector2f(mouse_pos));
+	auto mouse_tile = pos_to_chunk_subc(Vector2f(MouseInputManager::globalPosition));
 	if (!mouse_tile.second)
 		return;
 	if (mouse_tile.first == tileLookingAt().first)
@@ -137,9 +131,9 @@ bool check_move(float dx, float dy)
 	if (chunk_subc.second)
 	{
 		Chunk& chunk_to_check = world_chunks[chunk.x][chunk.y];
-		if (chunk_to_check.changeables[subc.x][subc.y] == nullptr)
+		if (chunk_to_check.tiles[subc.x][subc.y] == nullptr)
 			return true;
-		else if (!chunk_to_check.changeables[subc.x][subc.y]->solid)
+		else if (!chunk_to_check.tiles[subc.x][subc.y]->solid)
 			return true;
 	}
 	return false;
@@ -164,7 +158,10 @@ void check_action()
 	if (KeyInputManager::isActionTapped("inventory"))
 	{
 		if (player.state == playerState::inventory)
+		{
 			player.state = playerState::normal;
+			player.container = nullptr;
+		}
 		else
 			player.state = playerState::inventory;
 	}
@@ -176,6 +173,6 @@ void playerMovement()
 		return;
 	if (player.state == playerState::normal)
 		player.walk();
-	else
+	if (player.state == playerState::swimming)
 		player.swim();
 }

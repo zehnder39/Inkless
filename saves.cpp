@@ -6,6 +6,8 @@
 #include "window.hpp"
 #include "texture.hpp"
 #include "player.hpp"
+#include "tiles.hpp"
+#include "entities.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -36,10 +38,10 @@ void to_json(nlohmann::json& j, const Chunk& c)
         nlohmann::json row = nlohmann::json::array();
 
         for (int x = 0; x < 16; x++) {
-            if (c.changeables[y][x]) {
+            if (c.tiles[y][x]) {
                 nlohmann::json jt;
-                c.changeables[y][x]->to_json(jt);
-                jt["type"] = c.changeables[y][x]->type();
+                c.tiles[y][x]->to_json(jt);
+                jt["type"] = c.tiles[y][x]->type();
                 row.push_back(jt);
             }
             else {
@@ -70,14 +72,14 @@ void from_json(const nlohmann::json& j, Chunk& c)
             const auto& cell = grid.at(y).at(x);
 
             if (cell.is_null()) {
-                c.changeables[y][x] = nullptr;
+                c.tiles[y][x] = nullptr;
                 continue;
             }
 
             std::string type = cell.at("type");
 
-            c.changeables[y][x] = make_tile(type);
-			c.changeables[y][x]->from_json(cell);
+            c.tiles[y][x] = make_tile(type);
+			c.tiles[y][x]->from_json(cell);
         }
     }
 }

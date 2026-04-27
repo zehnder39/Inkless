@@ -29,10 +29,12 @@ public:
 	float animation_offset = 0;
 	Sprite model;
 	playerState state = normal;
+	Container* container = nullptr;
+	pair<string, int> itemOnCursor = { "", 0 };
 
 	GutterPathing gutterPathing;
 
-	Inventory inventory{56, 8};
+	Inventory inventory{56, 8, string("Inventory")};
 
 	void updateChunkSubc();
 	void swim();
